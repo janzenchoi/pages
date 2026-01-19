@@ -1,6 +1,6 @@
 # Janzen's GitHub Pages
 
-Website: `https://janzenchoi.github.io`
+Website: `https://janzenchoi.github.io/website`
 
 * `npm install`: Install dependencies
 * `npm start`: Start website locally

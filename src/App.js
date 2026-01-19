@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Template } from './pages/Template';
 import { Settings } from './pages/Settings';
@@ -18,14 +18,13 @@ function App() {
   // Return
   return (
     <div style={{ ...appStyle }}>
-      <BrowserRouter>
-        <Header/>
+      <HashRouter>
+        <Header />
         <Routes>
-          <Route path='/' element={<Template />}/>
-          <Route path='/website' element={<Template />}/>
-          <Route path='/website/settings' element={<Settings />}/>
+          <Route path='/' element={<Template />} />
+          <Route path='/settings' element={<Settings />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }
