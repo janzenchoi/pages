@@ -1,17 +1,25 @@
-import React from 'react';
+import { useEffect } from "react";
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Template } from './pages/Template';
 import { Settings } from './pages/Settings';
-import { useDarkModeColour } from './helper/brightness';
-import { light1, dark1 } from './helper/colour';
+import { getStoredValue } from "./helper/storage";
+import { DEFAULT_MODE } from "./helper/brightness";
 
 function App() {
   
+  // Persist colour theme on refresh
+  useEffect(() => {
+    const saved = getStoredValue("colour-theme");
+    if (saved)
+      document.documentElement.setAttribute("colour-theme", saved);
+    else
+      document.documentElement.setAttribute("colour-theme", DEFAULT_MODE);
+  });
+
   // Define colour template
-  const backgroundColour = useDarkModeColour(light1, dark1);
   const appStyle = {
-    backgroundColor: backgroundColour,
+    backgroundColor: "var(--colour-1)",
     transition: "background-color 0.3s",
   };
 

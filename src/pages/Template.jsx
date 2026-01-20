@@ -1,5 +1,5 @@
 import React from 'react';
-import { outerContainerStyle, rowContainerStyle, columnContainerStyle } from '../helper/container';
+import { outerContainerStyle, rowContainerStyle, columnContainerStyle } from '../helper/layout';
 
 export const Template = () => {
   return (

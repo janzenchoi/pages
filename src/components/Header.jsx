@@ -1,13 +1,42 @@
-import { useDarkModeColour } from "../helper/brightness";
-import { light3, dark3 } from "../helper/colour";
+import { Link } from "react-router-dom";
+import Dropdown from './Dropdown';
 
+/**
+ * Creates a fixed header
+ * @returns header object
+ */
 export const Header = () => {
-  const backgroundColour = useDarkModeColour(light3, dark3);
+
+  // Define header style
   const headerStyle = {
-    height: "50px",
-    width: "100vw",
-    backgroundColor: backgroundColour,
-    transition: "background-color 0.3s",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "var(--header-height)",
+    backgroundColor: "var(--colour-1)",
+    transition: "all 0.3s",
+    boxShadow: "0 0px 6px var(--colour-3)",
+    zIndex: 2000,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 1rem",
   };
-  return <div style={{ ...headerStyle }}></div>;
+
+  // Define logo style
+  const logoStyle = {
+    fontWeight: 600,
+    fontSize: "2rem",
+    color: "var(--colour-5)",
+    cursor: "pointer",
+  };
+
+  // Return header object
+  return <div style={{ ...headerStyle }}>
+    <Link to="/" style={{ textDecoration: "none" }}>
+      <div style={{ ...logoStyle }}>JANZEN</div>
+    </Link>
+    <Dropdown/>
+  </div>;
 };

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getStoredValue, toggleStoredValue } from "../../helper/storage";
-import { light3, green } from "../../helper/colour";
 
 /**
  * Creates a toggle switch that toggles data in local storage.
@@ -15,7 +14,8 @@ function LocalToggle({ field }) {
   // Update upon change of local storage
   useEffect(() => {
     const storageListenerHandler = (e) => {
-      if (e.key === field) setToggleValue(e.newValue === "true");
+      if (e.key === field)
+        setToggleValue(e.newValue === "true");
     };
     window.addEventListener("storage", storageListenerHandler);
     return () => window.removeEventListener("storage", storageListenerHandler);
@@ -25,22 +25,16 @@ function LocalToggle({ field }) {
   const toggleHandler = () => {
     const newValue = toggleStoredValue(field);
     setToggleValue(newValue);
-    // console.log(getStoredValue(field));
   };
 
   // Styles
-  const labelStyle = {
-    display: "inline-block",
-    cursor: "pointer",
-    margin: "5px 0",
-  };
   const sliderStyle = {
     position: "relative",
     display: "inline-block",
     width: "50px",
     height: "24px",
     borderRadius: "24px",
-    backgroundColor: toggleValue ? green: light3,
+    backgroundColor: toggleValue ? "#2dc188ff": "#a0a0baff",
     transition: "background-color 0.2s",
   };
   const circleStyle = {
@@ -56,7 +50,7 @@ function LocalToggle({ field }) {
 
   // Render toggle switch
   return (
-    <label style={labelStyle}>
+    <div>
       <input
         type="checkbox"
         checked={toggleValue}
@@ -66,7 +60,7 @@ function LocalToggle({ field }) {
       <span style={sliderStyle}>
         <span style={circleStyle} />
       </span>
-    </label>
+    </div>
   );
 }
 

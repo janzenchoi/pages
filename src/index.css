@@ -5,9 +5,29 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--colour-1);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+:root {
+  --header-height: 60px;
+  --colour-1: rgb(250, 251, 255);
+  --colour-2: rgb(228, 239, 255);
+  --colour-3: rgb(174, 199, 236);
+  --colour-4: rgb(127, 154, 195);
+  --colour-5: rgb(64, 89, 126);
+  --switch-colour: rgb(172, 192, 222);
+}
+
+[colour-theme="dark"] {
+  --colour-1: rgb(24, 26, 33);
+  --colour-2: rgb(45, 54, 64);
+  --colour-3: rgb(68, 82, 99);
+  --colour-4: rgb(90, 111, 134);
+  --colour-5: rgb(189, 211, 236);
+  --switch-colour: rgb(45, 193, 136);
 }
