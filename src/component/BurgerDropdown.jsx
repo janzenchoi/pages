@@ -25,11 +25,14 @@ const BurgerDropdown = ({ children }) => {
   const barContainerStyle = {
     position: "relative",
     width: "24px",
-    height: "16px",
+    height: "2rem",
     cursor: "pointer",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   };
   const barStyle = {
-    position: "absolute",
+    position: "relative",
     left: 0,
     width: "100%",
     height: "4px",
@@ -42,9 +45,9 @@ const BurgerDropdown = ({ children }) => {
   return (
     <div ref={dropdownRef} style={{ position: "relative" }}>
       <div style={barContainerStyle} onClick={() => setOpen((prev) => !prev)}>
-        <div style={{ ...barStyle, top: 0,  transform: open ? "translateY(8px) rotate(45deg)" : "none" }}/>
-        <div style={{ ...barStyle, top: 8, opacity: open ? 0 : 1, }}/>
-        <div style={{ ...barStyle, top: 16, transform: open ? "translateY(-8px) rotate(-45deg)" : "none" }}/>
+        <div style={{ ...barStyle, transform: open ? "translateY(8px) rotate(45deg)" : "none" }}/>
+        <div style={{ ...barStyle, opacity: open ? 0 : 1, }}/>
+        <div style={{ ...barStyle, transform: open ? "translateY(-8px) rotate(-45deg)" : "none" }}/>
       </div>
       <div style={{ ...menuStyle, opacity: open ? 1 : 0 }}>
         <div style={triangleStyle}/>
