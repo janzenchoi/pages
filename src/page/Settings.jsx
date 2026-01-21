@@ -1,5 +1,5 @@
 import { outerContainerStyle, rowContainerStyle, columnContainerStyle } from '../helper/layout';
-import ColourThemeToggle from '../components/buttons/ColourThemeToggle';
+import ColourThemeToggle from '../component/button/ColourThemeToggle';
 // import LocalToggle from '../components/buttons/LocalToggle';
 
 export const Settings = () => {

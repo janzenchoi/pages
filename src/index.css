@@ -15,12 +15,12 @@ code {
 
 :root {
   --header-height: 60px;
-  --colour-1: rgb(250, 251, 255);
-  --colour-2: rgb(228, 239, 255);
-  --colour-3: rgb(174, 199, 236);
+  --colour-1: rgb(247, 248, 255);
+  --colour-2: rgb(213, 229, 252);
+  --colour-3: rgb(155, 179, 214);
   --colour-4: rgb(127, 154, 195);
-  --colour-5: rgb(64, 89, 126);
-  --switch-colour: rgb(172, 192, 222);
+  --colour-5: rgb(43, 63, 94);
+  --switch-colour: rgb(155, 179, 214);
 }
 
 [colour-theme="dark"] {

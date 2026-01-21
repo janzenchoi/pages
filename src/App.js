@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { Header } from './components/Header';
-import { Template } from './pages/Template';
-import { Settings } from './pages/Settings';
+import { Header } from './component/Header';
+import { ViewportProvider } from "./context/Viewport";
+import { Template } from './page/Template';
+import { Settings } from './page/Settings';
 import { getStoredValue } from "./helper/storage";
 import { DEFAULT_MODE } from "./helper/brightness";
 
@@ -25,15 +26,17 @@ function App() {
 
   // Return
   return (
-    <div style={{ ...appStyle }}>
-      <HashRouter>
-        <Header />
-        <Routes>
-          <Route path='/' element={<Template />} />
-          <Route path='/settings' element={<Settings />} />
-        </Routes>
-      </HashRouter>
-    </div>
+    <ViewportProvider>
+      <div style={appStyle}>
+        <HashRouter>
+          <Header />
+          <Routes>
+            <Route path='/' element={<Template />} />
+            <Route path='/settings' element={<Settings />} />
+          </Routes>
+        </HashRouter>
+      </div>
+    </ViewportProvider>
   );
 }
 

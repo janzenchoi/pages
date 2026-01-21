@@ -1,3 +1,6 @@
+// Width to define the width breakpoint of the mobile version
+export const MOBILE_WIDTH = "800px";
+
 // Outer container that depends on header / footer size
 export const outerContainerStyle = {
   paddingTop: "var(--header-height)",

@@ -5,7 +5,6 @@ import { setStoredValue, getStoredValue } from "../../helper/storage";
 /**
  * Creates a toggle switch that changes the colour theme.
  *
- * @param {string} field field to toggle 
  * @returns {string} toggle switch
  */
 function ColourThemeToggle() {
