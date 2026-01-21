@@ -22,13 +22,6 @@ function App() {
   const appStyle = {
     backgroundColor: "var(--colour-1)",
     transition: "background-color 0.3s",
-    // minHeight: "100vh",
-    // minWidth: "100vw",
-    // paddingTop: "env(safe-area-inset-top)",
-    // paddingBottom: "env(safe-area-inset-bottom)",
-    // paddingLeft: "env(safe-area-inset-left)",
-    // paddingRight: "env(safe-area-inset-right)",
-    // boxSizing: "border-box",
   };
 
   // Return
