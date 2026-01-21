@@ -24,7 +24,7 @@ code {
 }
 
 [colour-theme="dark"] {
-  --colour-1: rgb(24, 26, 33);
+  --colour-1: rgb(24, 26, 33); /* For index.html safe area default colour: #181A21 */
   --colour-2: rgb(45, 54, 64);
   --colour-3: rgb(68, 82, 99);
   --colour-4: rgb(90, 111, 134);
