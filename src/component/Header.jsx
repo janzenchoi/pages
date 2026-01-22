@@ -159,15 +159,11 @@ const DarkModeItem = () => {
  */
 const MobileModeItem = ({ forceMobile, setForceMobile }) => {
   const { isMobile } = useViewport();
-  const onChange = () => {
-    const nextForce = !forceMobile;
-    setForceMobile(nextForce);
-  };
   return <div style={dropdownItemStyle}>
     <div style={textStyle}>Mobile Mode</div>
     <ReactToggle
       input    = {isMobile || forceMobile}
-      onChange = {onChange}
+      onChange = {() => {setForceMobile(!forceMobile)}}
       disabled = {Boolean(isMobile)}
     />
   </div>
