@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { setDarkMode, DEFAULT_MODE } from "../../helper/brightness";
-import { setStoredValue, getStoredValue } from "../../helper/storage";
+import { setDarkMode } from "../../helper/brightness";
+import { setStoredValue } from "../../helper/storage";
 
 /**
  * Creates a toggle switch that changes the colour theme.
  * @param {boolean} colourTheme the theme to colour the site
  * @param {function} setColourTheme function to set colour theme
- * @returns {string} toggle switch
+ * @returns colour theme toggle object
  */
 function ColourThemeToggle({colourTheme, setColourTheme}) {
 

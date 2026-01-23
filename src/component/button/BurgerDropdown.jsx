@@ -4,10 +4,11 @@ import { Dropdown } from "./Dropdown";
 /**
  * Dropdown menu triggered by burger
  * @param {*} style additional style to apply to the burger
+ * @param {*} closeOnChange variable to monitor to close if changed
  * @param {*} children items of the dropdown
  * @returns burger dropdown menu object
  */
-const BurgerDropdown = ({ style, children }) => {
+const BurgerDropdown = ({ style, children, closeOnChange }) => {
   const [open, setOpen] = useState(false);
   const burgerRef = useRef(null)
 
@@ -38,7 +39,7 @@ const BurgerDropdown = ({ style, children }) => {
         <div style={{ ...barStyle, opacity: open ? 0 : 1 }} />
         <div style={{ ...barStyle, transform: open ? "translateY(-9px) rotate(-45deg)" : "none" }} />
       </div>
-      <Dropdown open={open} onClose={() => setOpen(false)} ignoreRefs={[burgerRef]}>
+      <Dropdown open={open} onClose={() => setOpen(false)} closeOnChange={closeOnChange} ignoreRefs={[burgerRef]}>
         {children}
       </Dropdown>
     </div>

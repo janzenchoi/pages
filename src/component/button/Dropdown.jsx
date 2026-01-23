@@ -4,14 +4,23 @@ import { useRef, useEffect } from "react";
  * Controlled dropdown menu
  * @param {boolean} open whether dropdown is open
  * @param {function} onClose function to call when clicked outside
+ * @param {*} closeOnChange variable to monitor to close if changed
  * @param {*} ignoreRefs areas to include as 'inside'
  * @param {*} children menu items
+ * @returns dropdown object
  */
-export const Dropdown = ({ open, onClose, children, ignoreRefs=[] }) => {
+export const Dropdown = ({ open, onClose, children, closeOnChange=null, ignoreRefs=[] }) => {
   const dropdownRef = useRef(null);
+
+  // Close if variable changes
+  useEffect(() => {
+    onClose();
+  }, [closeOnChange]);
 
   // Close when clicking outside
   useEffect(() => {
+    if (!open)
+      return;
     const clickOutsideHandler = (e) => {
       const clickedInsideDropdown = dropdownRef.current?.contains(e.target);
       const clickedInsideIgnored = ignoreRefs.some(ref => ref.current?.contains(e.target));
@@ -20,7 +29,7 @@ export const Dropdown = ({ open, onClose, children, ignoreRefs=[] }) => {
     };
     document.addEventListener("mousedown", clickOutsideHandler);
     return () => document.removeEventListener("mousedown", clickOutsideHandler);
-  }, [onClose, ignoreRefs]);
+  }, [open, onClose, ignoreRefs]);
 
   // Dropdown arrow style
   const triangleStyle = {
@@ -38,7 +47,7 @@ export const Dropdown = ({ open, onClose, children, ignoreRefs=[] }) => {
   // Dropdown menu style
   const menuStyle = {
     position: "absolute",
-    top: "16px",
+    top: "14px",
     right: 0,
     display: "flex",
     pointerEvents: open ? "auto" : "none",

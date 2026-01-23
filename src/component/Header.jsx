@@ -116,11 +116,14 @@ export const Header = ({ mobileMode, forceMobile, setForceMobile, colourTheme, s
         </div>
         <div style={tabDividerStyle}/>
         <div style={tabItemStyle}>
-          <div style={textStyle}>Activities</div>
+          <TextDropdown text={"Activities"} style={textStyle} closeOnChange={mobileMode}>
+            <DarkModeItem colourTheme={colourTheme} setColourTheme={setColourTheme}/>
+            <MobileModeItem forceMobile={forceMobile} setForceMobile={setForceMobile}/>
+          </TextDropdown>
         </div>
         <div style={tabDividerStyle}/>
         <div style={tabItemStyle}>
-          <TextDropdown text={"Settings"} style={textStyle}>
+          <TextDropdown text={"Settings"} style={textStyle} closeOnChange={mobileMode}>
             <DarkModeItem colourTheme={colourTheme} setColourTheme={setColourTheme}/>
             <MobileModeItem forceMobile={forceMobile} setForceMobile={setForceMobile}/>
           </TextDropdown>
@@ -128,7 +131,7 @@ export const Header = ({ mobileMode, forceMobile, setForceMobile, colourTheme, s
       </div>
 
       {/* Mobile Mode Options */}
-      <BurgerDropdown style={burgerTransitionStyle}>
+      <BurgerDropdown style={burgerTransitionStyle} closeOnChange={mobileMode}>
         <div style={dropdownItemStyle}>
           <div style={textStyle}>About</div>
         </div>
