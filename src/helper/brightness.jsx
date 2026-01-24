@@ -12,7 +12,7 @@ export function setDarkMode(enabled) {
 }
 
 export function updateSafeAreaColour() {
-  const colour1 = getComputedStyle(document.documentElement).getPropertyValue("--colour-1").trim();
+  const colour1 = getComputedStyle(document.documentElement).getPropertyValue("--colour-0").trim();
   const themeMeta = document.getElementById("theme-color-meta");
   if (themeMeta)
     themeMeta.setAttribute("content", colour1);

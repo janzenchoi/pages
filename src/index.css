@@ -15,16 +15,18 @@ code {
 
 :root {
   --header-height: 60px;
-  --colour-1: rgb(247, 248, 255);
-  --colour-2: rgb(213, 229, 252);
+  --colour-0: rgb(241, 246, 255);
+  --colour-1: rgb(226, 238, 255);
+  --colour-2: rgb(209, 225, 249);
   --colour-3: rgb(155, 179, 214);
   --colour-4: rgb(127, 154, 195);
-  --colour-5: rgb(43, 63, 94);
-  --switch-colour: rgb(155, 179, 214);
+  --colour-5: rgb(36, 62, 101);
+  --switch-colour: rgb(127, 154, 195);
 }
 
 [colour-theme="dark"] {
-  --colour-1: rgb(24, 26, 33); /* For index.html safe area default colour: #181A21 */
+  --colour-0: rgb(24, 26, 33); /* For index.html safe area default colour: #181A21 */
+  --colour-1: rgb(37, 39, 49);
   --colour-2: rgb(45, 54, 64);
   --colour-3: rgb(68, 82, 99);
   --colour-4: rgb(90, 111, 134);

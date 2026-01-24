@@ -33,7 +33,7 @@
         const meta = document.getElementById("theme-color-meta");
         if (meta) {
           const style = getComputedStyle(document.documentElement);
-          const colour1 = style.getPropertyValue("--colour-1").trim();
+          const colour1 = style.getPropertyValue("--colour-0").trim();
           meta.setAttribute("content", colour1);
         }
       })();

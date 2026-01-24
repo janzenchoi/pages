@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { ViewportProvider } from "./helper/Viewport";
 import { getStoredValue } from "./helper/storage";
 import { updateSafeAreaColour, DEFAULT_MODE } from "./helper/brightness";
-import { Site } from "./component/Site";
+import { Site } from "./components/Site";
 
 function App() {
 

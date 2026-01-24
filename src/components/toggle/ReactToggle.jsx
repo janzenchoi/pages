@@ -38,7 +38,7 @@ function ReactToggle({ input, onChange, disabled=false }) {
     width: "40px",
     height: "20px",
     borderRadius: "20px",
-    backgroundColor: localInput ? "rgb(45, 193, 136)" : "rgb(155, 179, 214)",
+    backgroundColor: localInput ? "rgb(45, 193, 136)" : "rgb(127, 154, 195)",
     opacity: disabled ? 0.5 : 1,
     transition: "background-color 0.2s",
   };

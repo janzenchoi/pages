@@ -1,4 +1,5 @@
 // Constants
+export const MAX_WIDTH = "1000px";
 export const MOBILE_WIDTH = "800px";
 export const MIN_WIDTH = "240px";
 
