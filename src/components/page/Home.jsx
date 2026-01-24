@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { ProfileImage } from "../ProfileImage";
+import { ProfileImage } from "../content/ProfileImage";
+// import { Container } from "../content/Container";
 
 /**
  * Home page
@@ -18,7 +19,8 @@ export const Home = ({mobileMode, colourTheme}) => {
   // Return home object
   return (
     <div>
-        <ProfileImage toggle={darkMode}/>
+      <ProfileImage toggle={darkMode}/>
+      {/* <Container toggle={darkMode}/> */}
     </div>
   );
 }

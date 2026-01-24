@@ -1,5 +1,5 @@
-import profileDayImage from "../assets/profile_day.jpg";
-import profileNightImage from "../assets/profile_night.jpg";
+import profileDayImage from "../../assets/profile_day.jpg";
+import profileNightImage from "../../assets/profile_night.jpg";
 
 /**
  * Bistate image

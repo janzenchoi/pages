@@ -9,7 +9,7 @@ import { useRef, useEffect } from "react";
  * @param {*} children menu items
  * @returns dropdown object
  */
-export const Dropdown = ({ open, onClose, children, closeOnChange=null, ignoreRefs=[] }) => {
+export const Dropdown = ({ open, onClose, closeOnChange=null, ignoreRefs=[], children }) => {
   const dropdownRef = useRef(null);
 
   // Close if variable changes

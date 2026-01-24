@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import { Home } from "./pages/Home";
-import { Template } from "./pages/Template";
+import { Home } from "./page/Home";
+import { Template } from "./page/Template";
 
 /**
  * The body of the page
@@ -8,7 +8,7 @@ import { Template } from "./pages/Template";
  * @param {boolean} colourTheme the theme to colour the site
  * @returns body object
  */
-export const Body = ({mobileMode, colourTheme}) => {
+export const Body = ({ mobileMode, colourTheme }) => {
 
   // Main style for the body
   const mainStyle = {

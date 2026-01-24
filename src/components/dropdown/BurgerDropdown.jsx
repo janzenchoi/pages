@@ -8,7 +8,7 @@ import { Dropdown } from "./Dropdown";
  * @param {*} children items of the dropdown
  * @returns burger dropdown menu object
  */
-const BurgerDropdown = ({ style, children, closeOnChange }) => {
+const BurgerDropdown = ({ style, closeOnChange, children }) => {
   const [open, setOpen] = useState(false);
   const burgerRef = useRef(null)
 
