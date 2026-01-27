@@ -58,7 +58,7 @@ export const titleStyle = {
   justifyContent: "center",
   textAlign: "justify",
   fontWeight: 500,
-  fontSize: "1rem",
+  fontSize: "1.05rem",
   color: "var(--colour-6)",
 };
 

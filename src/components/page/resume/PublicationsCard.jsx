@@ -37,7 +37,7 @@ export const PublicationsCard = ({ mobileMode, darkMode }) => {
     return <PublicationBullet
       mobileMode={mobileMode}
       darkMode={darkMode}
-      title={"Multi-objective Calibration of ElasticViscoplastic Models to Capture the Elevated-Temperature Creep and Tensile Behaviour of Alloy 617"}
+      title={"Multi-objective Calibration of Elastic-Viscoplastic Models to Capture the Elevated-Temperature Creep and Tensile Behaviour of Alloy 617"}
       subtitle={"International Journal of Pressure Vessels and Piping"}
       description={[
         "J. Choi, O. Muránsky, M.C. Messner, J.J. Kruzic, M.D. McMurtrey",
