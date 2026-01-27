@@ -28,22 +28,23 @@ export const IconBullet = ({ mobileMode, darkMode, iconLight, iconDark, title, s
 
   // Container styles
   const outerContainer = {
-    padding: "0.4rem",
+    padding: mobileMode ? "0.3rem" : "0.4rem",
     width: "calc(100% - 1rem)",
     display: "flex",
     flexDirection: "row",
     backgroundColor: hover ? "var(--colour-1)" : "transparent",
     cursor: "pointer",
-    gap: "1rem",
+    gap: mobileMode ? "0.8rem" : "1rem",
   };
   const imageContainer = {
-    height: "4.5rem",
-    width: "4.5rem",
+    height: mobileMode ? "3rem" : "4.5rem",
+    width: mobileMode ? "3rem" : "4.5rem",
     borderRadius: "8px",
     backgroundColor: "var(--colour-3)",
   };
   const textContainer = {
     display: "flex",
+    marginTop: mobileMode ? "-0.2rem" : 0,
     flexDirection: "column",
     minWidth: 0,
     flex: 1,

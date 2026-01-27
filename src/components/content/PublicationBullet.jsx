@@ -69,16 +69,15 @@ export const PublicationBullet = ({ mobileMode, darkMode, title, subtitle, descr
     const hyperlinkStyle = {
       display: "flex",
       flexDirection: mobileMode ? "column" : "row",
-      gap: "0.4rem",
       position: "relative",
-      minWidth: 0,
-      overflowWrap: "anywhere"
+      overflowWrap: "anywhere",
     };
     return (
       <div style={hyperlinkStyle}>
         {link !== "" && <a href={link} target="_blank" rel="noopener noreferrer">
           <div style={{ ...textStyle, textDecoration: "underline" }}>{link}</div>
         </a>}
+        {!mobileMode && <div style={{ width: "0.4rem" }}/>}
         <a href={downloadable} download={`${title} (${subtitle}, ${date})`}>
           <div style={{ ...textStyle, textDecoration: "underline" }}>(download)</div>
         </a>
