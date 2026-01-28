@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card } from "../../content/Card";
 import { PublicationBullet } from "../../content/PublicationBullet";
 import paper5 from "../../../assets/publications/paper_5.pdf";
