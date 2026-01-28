@@ -20,10 +20,10 @@ export const AboutCard = ({ mobileMode, darkMode }) => {
       <div style={{ display: "flex", flexDirection: "column", flex: "0 0 50%" }}>
         <ProfileImage darkMode={darkMode}/>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-        <div style={{ ...titleStyle, marginBottom: "0.8rem" }}>{text1}</div>
-        <div style={{ ...textStyle, marginBottom: "0.8rem"  }}>{text2}</div>
-        <div style={{ ...textStyle }}>{text3}</div>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: "0.8rem" }}>
+        <div style={{ ...titleStyle, textAlign: "start" }}>{text1}</div>
+        <div style={{ ...textStyle, textAlign: "start" }}>{text2}</div>
+        <div style={{ ...textStyle, textAlign: "start" }}>{text3}</div>
       </div>
     </div>
   };

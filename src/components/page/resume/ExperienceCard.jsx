@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Card } from "../../content/Card";
 import { IconBullet } from "../../content/IconBullet";
-import { Expander } from "../../content/Expander";
 import anlDark from "../../../assets/logo/anl_dark.png";
 import anlLight from "../../../assets/logo/anl_light.png";
 import anstoDark from "../../../assets/logo/ansto_dark.png";
@@ -21,7 +19,6 @@ import unswLight from "../../../assets/logo/unsw_light.png";
  * @returns experience card for mobile mode
  */
 export const ExperienceCard = ({ mobileMode, darkMode }) => {
-  const [open, setOpen] = useState(false);
 
   // Define bullets
   const Bullet7 = () => {
@@ -140,18 +137,13 @@ export const ExperienceCard = ({ mobileMode, darkMode }) => {
   // Return about card object
   return (
     <Card mobileMode={mobileMode} title={"Experience"}>
-      <div>
-        <Bullet7/>
-        <Bullet6/>
-        <Bullet5/>
-      </div>
-      {open && <div>
-        <Bullet4/>
-        <Bullet3/>
-        <Bullet2/>
-        <Bullet1/>
-      </div>}
-      <Expander mobileMode={mobileMode} open={open} setOpen={setOpen}/>
+      <Bullet7/>
+      <Bullet6/>
+      <Bullet5/>
+      <Bullet4/>
+      <Bullet3/>
+      <Bullet2/>
+      <Bullet1/>
     </Card>
   );
 };

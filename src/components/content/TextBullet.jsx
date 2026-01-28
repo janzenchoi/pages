@@ -19,7 +19,7 @@ export const TextBullet = ({ mobileMode, darkMode, title, subtitle }) => {
 
   // Container styles
   const outerContainer = {
-    padding: mobileMode ? "0.3rem" : "0.4rem",
+    padding: "0.2rem",
     width: "calc(100% - 1rem)",
     display: "flex",
     flexDirection: "row",

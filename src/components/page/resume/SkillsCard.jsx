@@ -22,8 +22,8 @@ export const SkillsCard = ({ mobileMode, darkMode }) => {
     return <TextBullet
       mobileMode={mobileMode}
       darkMode={darkMode}
-      title={"Decent programming skills"}
-      subtitle={"(Bash, C, C++, Java, JavaScript, Python, SQL)"}
+      title={"Programming skills"}
+      subtitle={"(Bash, C, C++, Java, JavaScript, MATLAB, Python, SQL)"}
     />
   };
   const Bullet2 = () => {

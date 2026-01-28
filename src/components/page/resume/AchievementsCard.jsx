@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Card } from "../../content/Card";
 import { IconBullet } from "../../content/IconBullet";
-import { Expander } from "../../content/Expander";
 import unswDark from "../../../assets/logo/unsw_dark.png";
 import unswLight from "../../../assets/logo/unsw_light.png";
 import bssm from "../../../assets/logo/bssm.png";
@@ -13,7 +11,6 @@ import bssm from "../../../assets/logo/bssm.png";
  * @returns achievements card for mobile mode
  */
 export const AchievementsCard = ({ mobileMode, darkMode }) => {
-  const [open, setOpen] = useState(false);
 
   // Define bullets
   const Bullet5 = () => {
@@ -90,16 +87,11 @@ export const AchievementsCard = ({ mobileMode, darkMode }) => {
   // Return about card object
   return (
     <Card mobileMode={mobileMode} title={"Achievements"}>
-      <div>
-        <Bullet5/>
-        <Bullet4/>
-        <Bullet3/>
-      </div>
-      {open && <div>
-        <Bullet2/>
-        <Bullet1/>
-      </div>}
-      <Expander mobileMode={mobileMode} open={open} setOpen={setOpen}/>
+      <Bullet5/>
+      <Bullet4/>
+      <Bullet3/>
+      <Bullet2/>
+      <Bullet1/>
     </Card>
   );
 };
