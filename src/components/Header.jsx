@@ -15,9 +15,13 @@ import { setStoredValue } from "../helper/storage";
  * @param {function} setForceMobile function to set mobile mode
  * @param {boolean} colourTheme the theme to colour the site
  * @param {function} setColourTheme function to set colour theme
+ * @param {boolean} ballExists the theme to colour the site
+ * @param {function} setBallExists function to set colour theme
  * @returns fixed header object
  */
-export const Header = ({ mobileMode, forceMobile, setForceMobile, colourTheme, setColourTheme }) => {
+export const Header = ({
+  mobileMode, forceMobile, setForceMobile, colourTheme, setColourTheme, ballExists, setBallExists
+}) => {
   const navigate = useNavigate();
 
   // Define header style
@@ -30,7 +34,7 @@ export const Header = ({ mobileMode, forceMobile, setForceMobile, colourTheme, s
     backgroundColor: "var(--colour-0)",
     transition: "all 0.3s ease",
     boxShadow: "0 0px 2px var(--colour-5)",
-    zIndex: 1000,
+    zIndex: 100,
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
@@ -92,62 +96,78 @@ export const Header = ({ mobileMode, forceMobile, setForceMobile, colourTheme, s
     pointerEvents: mobileMode ? "auto" : "none",
   };
 
+  // Dropdown items
+  const DropdownItems = () => {
+    return (
+      <div style={{ marginLeft: "-0.3rem" }}>
+        <DropdownItem>
+          <DarkModeItem colourTheme={colourTheme} setColourTheme={setColourTheme}/>
+        </DropdownItem>
+        <DropdownItem>
+          <MobileModeItem forceMobile={forceMobile} setForceMobile={setForceMobile}/>
+        </DropdownItem>
+        <DropdownItem>
+          <div style={dropdownItemStyle}>
+            <div style={textStyle}>Bouncing Ball</div>
+            <ReactToggle input={ballExists} onChange={setBallExists}/>
+          </div>
+        </DropdownItem>
+      </div>
+    );
+  };
+
+  // Desktop mode object
+  const DesktopObject = () => {
+    return (
+      <div style={tabMenuStyle}>
+        <TabItem>
+          <div style={textStyle} onClick={() => navigate("/home")}>Home</div>
+        </TabItem>
+        <TabItem>
+          <div style={textStyle} onClick={() => navigate("/resume")}>Resumé</div>
+        </TabItem>
+        <TabItem>
+          <div style={textStyle} onClick={() => navigate("/activities")}>Activities</div>
+        </TabItem>
+        <div style={tabDividerStyle}/>
+        <TabItem>
+          <TextDropdown text={"Settings"} style={textStyle} closeOnChange={mobileMode}>
+            <DropdownItems/>
+          </TextDropdown>
+        </TabItem>
+      </div>
+    );
+  };
+
+  // Mobile mode object
+  const MobileObject = () => {
+    return (
+      <BurgerDropdown style={burgerTransitionStyle} closeOnChange={mobileMode}>
+        <DropdownItem>
+          <div style={textStyle} onClick={() => navigate("/home")}>Home</div>
+        </DropdownItem>
+        <DropdownItem>
+          <div style={textStyle} onClick={() => navigate("/resume")}>Resumé</div>
+        </DropdownItem>
+        <DropdownItem>
+          <div style={textStyle} onClick={() => navigate("/activities")}>Activities</div>
+        </DropdownItem>
+        <div style={dropdownDividerStyle}/>
+        <DropdownItems/>
+      </BurgerDropdown>
+    );
+  };
+
   // Return header object
   return (
     <div style={outerHeaderStyle}>
       <div style={headerStyle}>
-
-        {/* Logo */}
         <Link to="/" style={{ textDecoration: "none" }}>
           <div style={logoStyle}>JANZEN</div>
         </Link>
-
-        {/* Right-side menu */}
         <div style={rightMenuStyle}>
-
-          {/* Desktop Mode Options */}
-          <div style={tabMenuStyle}>
-            <TabItem>
-              <div style={textStyle} onClick={() => navigate("/home")}>Home</div>
-            </TabItem>
-            <TabItem>
-              <div style={textStyle} onClick={() => navigate("/resume")}>Resumé</div>
-            </TabItem>
-            <TabItem>
-              <div style={textStyle} onClick={() => navigate("/activities")}>Activities</div>
-            </TabItem>
-            <div style={tabDividerStyle}/>
-            <TabItem>
-              <TextDropdown text={"Settings"} style={textStyle} closeOnChange={mobileMode}>
-              <DropdownItem>
-                <DarkModeItem colourTheme={colourTheme} setColourTheme={setColourTheme}/>
-              </DropdownItem>
-              <DropdownItem>
-                <MobileModeItem forceMobile={forceMobile} setForceMobile={setForceMobile}/>
-              </DropdownItem>
-              </TextDropdown>
-            </TabItem>
-          </div>
-
-          {/* Mobile Mode Options */}
-          <BurgerDropdown style={burgerTransitionStyle} closeOnChange={mobileMode}>
-            <DropdownItem>
-              <div style={textStyle} onClick={() => navigate("/home")}>Home</div>
-            </DropdownItem>
-            <DropdownItem>
-              <div style={textStyle} onClick={() => navigate("/resume")}>Resumé</div>
-            </DropdownItem>
-            <DropdownItem>
-              <div style={textStyle} onClick={() => navigate("/activities")}>Activities</div>
-            </DropdownItem>
-            <div style={dropdownDividerStyle}/>
-            <DropdownItem>
-              <DarkModeItem colourTheme={colourTheme} setColourTheme={setColourTheme}/>
-            </DropdownItem>
-            <DropdownItem>
-              <MobileModeItem forceMobile={forceMobile} setForceMobile={setForceMobile}/>
-            </DropdownItem>
-          </BurgerDropdown>
+          <DesktopObject/>
+          <MobileObject/>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useViewport } from "../helper/Viewport";
 import { DEFAULT_MODE, HEADER_HEIGHT } from "../helper/constant";
 import { getStoredValue } from "../helper/storage";
 import { Body } from "./Body";
+import { Ball } from "./content/Ball";
 import fg_dark from "../assets/janzen/fg_dark.png";
 import fg_light from "../assets/janzen/fg_light.png";
 
@@ -24,6 +25,7 @@ export const Site = () => {
   const { isMobile } = useViewport();
   const [ forceMobile, setForceMobile ] = useState(getStoredValue("force-mobile") === "true");
   const [ mobileMode, setMobileMode ] = useState(isMobile || forceMobile);
+  const [ ballExists, setBallExists ] = useState(false);
   useEffect(() => {
     setMobileMode(isMobile || forceMobile);
   }, [isMobile, forceMobile]);
@@ -53,11 +55,23 @@ export const Site = () => {
   return <div style={siteStyle}>
     <HashRouter>
       <FgObject/>
-      <Header mobileMode={mobileMode} forceMobile={forceMobile} setForceMobile={setForceMobile} colourTheme={colourTheme} setColourTheme={setColourTheme}/>
+      <Header
+        mobileMode={mobileMode}
+        forceMobile={forceMobile}
+        setForceMobile={setForceMobile}
+        colourTheme={colourTheme}
+        setColourTheme={setColourTheme}
+        ballExists={ballExists}
+        setBallExists={setBallExists}
+        />
       <div>
-        <Body mobileMode={mobileMode} colourTheme={colourTheme}/>
+        <Body
+          mobileMode={mobileMode}
+          colourTheme={colourTheme}
+          />
       </div>
       <Footer/>
+      {ballExists && <Ball/>}
     </HashRouter>
   </div>
 }

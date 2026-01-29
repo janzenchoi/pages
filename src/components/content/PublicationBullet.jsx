@@ -74,7 +74,7 @@ export const PublicationBullet = ({ mobileMode, darkMode, title, subtitle, descr
         {link !== "" && <a href={fullLink} target="_blank" rel="noopener noreferrer">
           <div style={{ ...textStyle, textDecoration: "underline" }}>{link}</div>
         </a>}
-        {!mobileMode && <div style={{ width: "0.4rem" }}/>}
+        {!mobileMode && link !== "" && <div style={{ width: "0.4rem" }}/>}
         {downloadable !== null && <a href={downloadable} download={"publication"}>
           <div style={{ ...textStyle, textDecoration: "underline" }}>(download)</div>
         </a>}
