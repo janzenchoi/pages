@@ -6,11 +6,11 @@ const BALL_SIZE = 100;
 const GRAVITY = 0.5;
 const FRICTION = 0.7;
 const AIR_FRICTION = 0.995;
-const GROUND_FRICTION = 0.9;
+const GROUND_FRICTION = 0.95;
 const FRAME_MS = 16.6667;
 
 const RELEASE_DAMPING = 0.25; // reduce speed on release
-const ROTATION_FACTOR = 30; // rotation multiplier for horizontal movement
+const ROTATION_FACTOR = 50; // rotation multiplier for horizontal movement
 
 export const Ball = () => {
   const initialX = window.innerWidth / 2 - BALL_SIZE / 2;
