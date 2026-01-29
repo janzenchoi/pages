@@ -1,10 +1,11 @@
 {
   "files": {
     "main.css": "/website/static/css/main.6a6d2ed5.css",
-    "main.js": "/website/static/js/main.497da76b.js",
+    "main.js": "/website/static/js/main.3b26bf71.js",
     "static/js/453.e130b24d.chunk.js": "/website/static/js/453.e130b24d.chunk.js",
     "static/media/paper_5.pdf": "/website/static/media/paper_5.16166db6723f7bd4509e.pdf",
     "static/media/paper_4.pdf": "/website/static/media/paper_4.3ff84c9898825e61e7e9.pdf",
+    "static/media/dissertation.pdf": "/website/static/media/dissertation.34510099b28dc596e2ff.pdf",
     "static/media/paper_2.pdf": "/website/static/media/paper_2.f230d10f1cb9458522fb.pdf",
     "static/media/paper_3.pdf": "/website/static/media/paper_3.ad5db73f75047d8a7862.pdf",
     "static/media/paper_1.pdf": "/website/static/media/paper_1.424d510ffa78c3761fe7.pdf",
@@ -30,11 +31,11 @@
     "static/media/se_dark.png": "/website/static/media/se_dark.355f603cc349c80505d0.png",
     "index.html": "/website/index.html",
     "main.6a6d2ed5.css.map": "/website/static/css/main.6a6d2ed5.css.map",
-    "main.497da76b.js.map": "/website/static/js/main.497da76b.js.map",
+    "main.3b26bf71.js.map": "/website/static/js/main.3b26bf71.js.map",
     "453.e130b24d.chunk.js.map": "/website/static/js/453.e130b24d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6a6d2ed5.css",
-    "static/js/main.497da76b.js"
+    "static/js/main.3b26bf71.js"
   ]
 }
