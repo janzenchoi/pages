@@ -44,10 +44,21 @@ export const Card = ({ mobileMode, title, children }) => {
 export const horizontalDividerStyle = {
   width: "100%",
   height: "1px",
+  boxShadow: "0 0px 1px var(--colour-4)",
   margin: "0 0 0.4rem 0",
   backgroundColor: "var(--colour-4)",
   transition: "background-color 0.3s ease",
   opacity: 0.8,
+}
+
+/**
+ * Vertical divider style
+ */
+export const verticalDividerStyle = {
+  ...horizontalDividerStyle,
+  margin: "0.3rem 0.6rem 0 0",
+  height: "calc(100% - 0.3rem)",
+  width: "1px",
 }
 
 /**

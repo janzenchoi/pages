@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { titleStyle, subtitleStyle, textStyle, horizontalDividerStyle } from "./Card.jsx";
+import { titleStyle, subtitleStyle, textStyle, verticalDividerStyle } from "./Card";
 
 /**
  * Project bullet point
@@ -59,11 +59,6 @@ export const PublicationBullet = ({ mobileMode, darkMode, title, subtitle, descr
     bottom: 0,
     right: 0
   };
-  const dividerStyle = {
-    ...horizontalDividerStyle,
-    marginTop: "0.4rem",
-    marginBottom: "0.2rem",
-  };
 
   // For hyperlinks
   const Hyperlink = () => {
@@ -91,18 +86,21 @@ export const PublicationBullet = ({ mobileMode, darkMode, title, subtitle, descr
   const AdditionalDescription = () => {
     const descriptionStyle = {
       ...textStyle,
+      marginTop: "0.4rem",
       textAlign: mobileMode ? "start" : "justify",
     };
     return (
-      <div>
-        {description.map((text, idx) => (
-          <div key={idx}>
-            <div style={dividerStyle}/>
-            <div style={descriptionStyle}>{text}</div>
-          </div>
-        ))}
-        <div style={dividerStyle}/>
-        <Hyperlink/>
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}>
+        <div style={verticalDividerStyle}/>
+        <div>
+          {description.map((text, idx) => (
+            <div key={idx}>
+              <div style={descriptionStyle}>{text}</div>
+            </div>
+          ))}
+          <div style={{ marginTop: "0.4rem" }}/>
+          <Hyperlink/>
+        </div>
       </div>
     );
   };

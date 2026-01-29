@@ -20,7 +20,7 @@ export const EducationCard = ({ mobileMode, darkMode }) => {
       title={"PhD in Mechanical Engineering"}
       subtitle={"University of New South Wales"}
       description={[
-        "Focused on applying macine learning and optimisation techniques to develop and calibrate material models for predicting the creep and tensile deformation behaviour of Alloy 617",
+        "Focused on applying macine learning and optimisation techniques to develop and calibrate material models for predicting the creep and tensile deformation behaviour of Alloy 617.",
       ]}
       iconLight={unswLight}
       iconDark={unswDark}

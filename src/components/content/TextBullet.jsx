@@ -1,4 +1,4 @@
-import { titleStyle, subtitleStyle, textStyle, horizontalDividerStyle } from "./Card.jsx";
+import { titleStyle, subtitleStyle, textStyle, horizontalDividerStyle } from "./Card";
 
 /**
  * Text bullet point

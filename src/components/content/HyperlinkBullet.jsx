@@ -1,4 +1,5 @@
-import { titleStyle, textStyle } from "./Card.jsx";
+import { useState } from "react";
+import { titleStyle, textStyle } from "./Card";
 
 /**
  * Hyperlink bullet point
@@ -7,11 +8,12 @@ import { titleStyle, textStyle } from "./Card.jsx";
  * @param {string} iconLight bullet icon in light mode
  * @param {string} iconDark bullet icon in dark mode
  * @param {string} title bullet title
+ * @param {string} text bullet text
  * @param {string} hyperlink bullet subtitle
  * @returns hyperlink bullet object
  */
 export const HyperlinkBullet = ({ mobileMode, darkMode, iconLight, iconDark, title, text="", hyperlink="" }) => {
-
+  
   // Auxiliary
   const icon = darkMode ? iconDark : iconLight;
   const fullHyperlink = `https://${hyperlink}`;
@@ -43,7 +45,7 @@ export const HyperlinkBullet = ({ mobileMode, darkMode, iconLight, iconDark, tit
     display: "inline-block",
     width: "fit-content",
   };
-  
+
   // Return hyperlink object
   return (
     <div style={outerContainer}>

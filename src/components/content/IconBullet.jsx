@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { titleStyle, subtitleStyle, textStyle, horizontalDividerStyle } from "./Card.jsx";
+import { titleStyle, subtitleStyle, textStyle, verticalDividerStyle } from "./Card";
 
 /**
  * Icon bullet point
@@ -77,16 +77,12 @@ export const IconBullet = ({
     bottom: 0,
     right: 0
   };
-  const dividerStyle = {
-    ...horizontalDividerStyle,
-    marginTop: "0.4rem",
-    marginBottom: "0.2rem",
-  };
 
   // For additional description
   const AdditionalDescription = () => {
     const descriptionStyle = {
       ...textStyle,
+      marginTop: "0.4rem",
       textAlign: mobileMode ? "start" : "justify",
       display: "block"
     };
@@ -98,19 +94,21 @@ export const IconBullet = ({
       whiteSpace: "nowrap"
     };
     return (
-      <div>{description.map((text, idx) => {
-        return (
-          <div key={idx}>
-            <div style={dividerStyle}/>
-            <div style={descriptionStyle}>{text}
-              {idx === description.length - 1 && downloadable !== null && (<>{" "}
-                <a href={downloadable} download={downloadableName}>
-                  <span style={downloadStyle}>({downloadableName})</span>
-                </a>{"."}</>)}
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}>
+        <div style={verticalDividerStyle} />
+        <div>{description.map((text, idx) => {
+          return (
+            <div key={idx}>
+              <div style={descriptionStyle}>{text}
+                {idx === description.length - 1 && downloadable !== null && (<>{" "}
+                  <a href={downloadable} download={downloadableName}>
+                    <span style={downloadStyle}>({downloadableName})</span>
+                  </a></>)}
+              </div>
             </div>
-          </div>
-        );
-      })}</div>
+          );
+        })}</div>
+      </div>
     );
   };
 
