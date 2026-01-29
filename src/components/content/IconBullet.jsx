@@ -34,7 +34,7 @@ export const IconBullet = ({
   // Container styles
   const outerContainer = {
     padding: mobileMode ? "0.3rem" : "0.4rem",
-    // marginBottom: open ? "0.4rem" : "0",
+    marginBottom: open ? "0.4rem" : "0",
     width: "calc(100% - 1rem)",
     display: "flex",
     flexDirection: "row",

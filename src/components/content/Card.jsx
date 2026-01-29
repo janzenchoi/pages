@@ -43,10 +43,9 @@ export const Card = ({ mobileMode, title, children }) => {
  */
 export const horizontalDividerStyle = {
   width: "100%",
-  height: "2px",
-  boxShadow: "0 0px 1px var(--colour-4)",
+  height: "1px",
+  borderBottom: "2px solid var(--colour-3)",
   margin: "0 0 0.4rem 0",
-  backgroundColor: "var(--colour-4)",
   transition: "background-color 0.3s ease",
 }
 
@@ -56,7 +55,7 @@ export const horizontalDividerStyle = {
 export const verticalDividerStyle = {
   height: "calc(100% - 0.4rem)",
   margin: "0.4rem 0.6rem 0 0",
-  borderLeft: "1px solid var(--colour-4)",
+  borderLeft: "2px solid var(--colour-3)",
 }
 
 /**
