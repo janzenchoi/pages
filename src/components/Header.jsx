@@ -121,13 +121,13 @@ export const Header = ({
     return (
       <div style={tabMenuStyle}>
         <TabItem>
-          <div style={textStyle} onClick={() => navigate("/home")}>Home</div>
+          <div style={itemTextStyle} onClick={() => navigate("/home")}>Home</div>
         </TabItem>
         <TabItem>
-          <div style={textStyle} onClick={() => navigate("/resume")}>Resumé</div>
+          <div style={itemTextStyle} onClick={() => navigate("/resume")}>Resumé</div>
         </TabItem>
         <TabItem>
-          <div style={textStyle} onClick={() => navigate("/activities")}>Activities</div>
+          <div style={itemTextStyle} onClick={() => navigate("/activities")}>Activities</div>
         </TabItem>
         <div style={tabDividerStyle}/>
         <TabItem>
@@ -144,13 +144,13 @@ export const Header = ({
     return (
       <BurgerDropdown style={burgerTransitionStyle} closeOnChange={mobileMode}>
         <DropdownItem>
-          <div style={textStyle} onClick={() => navigate("/home")}>Home</div>
+          <div style={itemTextStyle} onClick={() => navigate("/home")}>Home</div>
         </DropdownItem>
         <DropdownItem>
-          <div style={textStyle} onClick={() => navigate("/resume")}>Resumé</div>
+          <div style={itemTextStyle} onClick={() => navigate("/resume")}>Resumé</div>
         </DropdownItem>
         <DropdownItem>
-          <div style={textStyle} onClick={() => navigate("/activities")}>Activities</div>
+          <div style={itemTextStyle} onClick={() => navigate("/activities")}>Activities</div>
         </DropdownItem>
         <div style={dropdownDividerStyle}/>
         <DropdownItems/>
@@ -184,8 +184,13 @@ const textStyle = {
   fontWeight: 400,
   fontSize: "1rem",
   color: "var(--colour-7)",
-  cursor: "pointer"
-}
+};
+const itemTextStyle = {
+  ...textStyle,
+  cursor: "pointer",
+  width: "100%",
+  marginRight: "0.8rem",
+};
 
 /**
  * Tab item object
