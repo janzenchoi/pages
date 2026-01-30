@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { BasketBall } from "./BasketBall";
-// import ballImage from "../../assets/stuff/ball.png";
+import ballImage from "../../assets/stuff/ball.png";
+// import { BasketBall } from "./BasketBall";
 
 /* =======================
    Physics constants
@@ -221,18 +221,9 @@ export const Ball = () => {
   };
 
   return (
-    // <img
-    //   src={ballImage}
-    //   alt="ball"
-    //   style={style}
-    //   draggable={false}
-    //   onMouseDown={handleDown}
-    //   onTouchStart={handleDown}
-    //   onTouchMove={handleMove}
-    //   onTouchEnd={handleUp}
-    //   onTouchCancel={handleUp}
-    // />
-    <div
+    <img
+      src={ballImage}
+      alt="ball"
       style={style}
       draggable={false}
       onMouseDown={handleDown}
@@ -240,8 +231,17 @@ export const Ball = () => {
       onTouchMove={handleMove}
       onTouchEnd={handleUp}
       onTouchCancel={handleUp}
-    >
-      <BasketBall size={BALL_SIZE} />
-    </div>
+    />
+    // <div
+    //   style={style}
+    //   draggable={false}
+    //   onMouseDown={handleDown}
+    //   onTouchStart={handleDown}
+    //   onTouchMove={handleMove}
+    //   onTouchEnd={handleUp}
+    //   onTouchCancel={handleUp}
+    // >
+    //   <BasketBall size={BALL_SIZE} />
+    // </div>
   );
 };

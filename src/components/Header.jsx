@@ -108,7 +108,7 @@ export const Header = ({
         </DropdownItem>
         <DropdownItem>
           <div style={dropdownItemStyle}>
-            <div style={textStyle}>Basket Ball</div>
+            <div style={textStyle}>Soccer Ball</div>
             <ReactToggle input={ballExists} onChange={setBallExists}/>
           </div>
         </DropdownItem>
