@@ -3,9 +3,9 @@ import ballImage from "../../assets/stuff/ball.png";
 
 // Constants
 const BALL_SIZE = 100;
-const GRAVITY = 0.5;
-const FRICTION = 0.7;
-const AIR_FRICTION = 0.995;
+const GRAVITY = 0.45;
+const FRICTION = 0.75;
+const AIR_FRICTION = 0.996;
 const GROUND_FRICTION = 0.95;
 const FRAME_MS = 16.6667;
 
