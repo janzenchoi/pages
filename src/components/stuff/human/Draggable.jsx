@@ -42,8 +42,7 @@ export const Draggable = ({ children, initialX = 0, initialY = 0, handleSelector
     <div
       style={{
         position: "absolute",
-        left: position.x,
-        top: position.y,
+        transform: `translate(${position.x}px, ${position.y}px)`,
         cursor: dragging ? "grabbing" : "grab",
         userSelect: "none",
       }}

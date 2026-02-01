@@ -36,8 +36,8 @@ import torsoImage from "../../../assets/stuff/human/torso.png";
  * @param {number} hindUpperLegRotation rotation of the rear upper leg / thigh (degrees)
  * @param {number} hindLowerLegRotation rotation of the rear lower leg / knee (degrees)
  * @param {number} hindFootRotation rotation of the rear foot / ankle (degrees)
- * @param {number} x local x offset (model space)
- * @param {number} y local y offset (model space)
+ * @param {number} offsetX local x offset (model space)
+ * @param {number} offsetY local y offset (model space)
  * @param {boolean} debug enable debug output / visual aids
  * @param {number} humanScale factor to scale everything
  * @param {boolean} darkMode make all body parts 30% darker if true
@@ -66,8 +66,12 @@ export const Human = ({
   hindFootRotation = 70,      // [30, 90]
 
   // Local model-space offset
-  x = 0,
-  y = 0,
+  offsetX = 0,
+  offsetY = 0,
+  borderX0 = -180,
+  borderX1 = 180,
+  borderY0 = -180,
+  borderY1 = 180,
 
   debug = false,
   humanScale = 1,
@@ -80,6 +84,29 @@ export const Human = ({
     filter: darkMode ? "brightness(80%)" : "none",
     draggable: false,
   });
+
+  // Container
+  const Container = ({ children }) => {
+    const borderStyle = {
+      position: "absolute",
+      border: debug ? "2px dashed red" : "none",
+      width: `${(borderX1-borderX0)*humanScale}px`,
+      height: `${(borderY1-borderY0)*humanScale}px`,
+      overflow: "hidden"
+    };
+    const containerStyle = {
+      position: "absolute",
+      transform: `translate(${(offsetX-borderX0)*humanScale}px, ${(offsetY-borderY0+25)*humanScale}px)`,
+      transformOrigin: "top left",
+    };
+    return (
+      <div style={borderStyle}>
+        <div style={containerStyle}>
+          {children}
+        </div>
+      </div>
+    );
+  };
 
   // Define head
   const Head = () => (
@@ -173,7 +200,7 @@ export const Human = ({
       length={20 * humanScale}
       rotation={hindHandRotation}
       image={<img src={hindHandImage} style={imgStyle(35)} alt="Janzen's hind hand" />}
-      imageOffset={{ x: 7 * humanScale, y: -16 * humanScale, r: -90 }}
+      imageOffset={{ x: 7 * humanScale, y: -17 * humanScale, r: -90 }}
       debug={debug}
     />
   );
@@ -262,22 +289,11 @@ export const Human = ({
 
   // Render object (local offset applied BEFORE rotation)
   return (
-    <Stick
-      length={0}
-      rotation={0}
-      offset={{ x, y }}
-      debug={debug}
-    >
+    <Container>
       <Stick
         length={10 * humanScale}
         rotation={-90 + humanRotation}
-        childAxes={[
-          82 * humanScale,
-          90 * humanScale,
-          0 * humanScale,
-          0 * humanScale,
-          82 * humanScale,
-        ]}
+        childAxes={[82 * humanScale, 90 * humanScale, 0 * humanScale, 0 * humanScale, 82 * humanScale, ]}
         debug={debug}
       >
         <HindUpperArm>
@@ -309,6 +325,6 @@ export const Human = ({
           </ForeLowerArm>
         </ForeUpperArm>
       </Stick>
-    </Stick>
+    </Container>
   );
 };

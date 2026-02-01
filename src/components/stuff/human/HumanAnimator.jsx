@@ -3,48 +3,64 @@ import { Human } from "./Human";
 
 export const HumanAnimator = ({
   targetPose,
-  x = 0,
-  y = 0,
   duration = 500,
   debug = false,
   humanScale = 1,
   darkMode = false,
 }) => {
   const [currentPose, setCurrentPose] = useState(() => ({
-    x,
-    y,
+    offsetX: targetPose.offsetX ?? 0,
+    offsetY: targetPose.offsetY ?? 0,
+
     foreHandRotation: 180,
     hindHandRotation: 180,
+
     ...targetPose,
   }));
 
   const animationRef = useRef(null);
   const startTimeRef = useRef(null);
   const startPoseRef = useRef({ ...currentPose });
-  const lastPoseRef = useRef({ ...currentPose });
   const targetRef = useRef({ ...currentPose });
 
-  const shortestAngleDelta = (from, to) => ((to - from + 540) % 360) - 180;
-  const isAngleKey = (key) => !["x", "y"].includes(key);
+  /* ------------------------------------------------------------------ */
+  /* Helpers                                                             */
+  /* ------------------------------------------------------------------ */
+
+  const shortestAngleDelta = (from, to) =>
+    ((to - from + 540) % 360) - 180;
+
+  const isAngleKey = (key) =>
+    ![
+      "offsetX",
+      "offsetY",
+      "borderX0",
+      "borderX1",
+      "borderY0",
+      "borderY1",
+    ].includes(key);
+
+  /* ------------------------------------------------------------------ */
+  /* Animation loop                                                      */
+  /* ------------------------------------------------------------------ */
 
   const animate = (timestamp) => {
     if (!startTimeRef.current) startTimeRef.current = timestamp;
+
     const elapsed = timestamp - startTimeRef.current;
     const t = Math.min(elapsed / duration, 1);
 
     const nextPose = {};
 
     for (const key in targetRef.current) {
-      const start = startPoseRef.current[key];
-      const end = targetRef.current[key];
+      const start = startPoseRef.current[key] ?? 0;
+      const end = targetRef.current[key] ?? 0;
 
-      if (!isAngleKey(key)) {
-        // linear interpolation for offsets
-        nextPose[key] = start + (end - start) * t;
-      } else {
-        // shortest-path interpolation for rotations
+      if (isAngleKey(key)) {
         const delta = shortestAngleDelta(start, end);
         nextPose[key] = (start + delta * t + 360) % 360;
+      } else {
+        nextPose[key] = start + (end - start) * t;
       }
     }
 
@@ -53,50 +69,36 @@ export const HumanAnimator = ({
     if (t < 1) {
       animationRef.current = requestAnimationFrame(animate);
     } else {
-      lastPoseRef.current = { ...nextPose };
-      startPoseRef.current = { ...nextPose };
       startTimeRef.current = null;
+      startPoseRef.current = { ...nextPose };
     }
   };
 
+  /* ------------------------------------------------------------------ */
+  /* React to pose changes                                               */
+  /* ------------------------------------------------------------------ */
+
   useEffect(() => {
-    cancelAnimationFrame(animationRef.current);
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
 
-    // Include x and y in the target
-    const adjustedTarget = {
-      ...targetPose,
-      x,
-      y,
-    };
-
-    targetRef.current = { ...lastPoseRef.current, ...adjustedTarget };
-    startPoseRef.current = { ...lastPoseRef.current };
+    startPoseRef.current = { ...currentPose };
+    targetRef.current = { ...currentPose, ...targetPose };
     startTimeRef.current = null;
 
     animationRef.current = requestAnimationFrame(animate);
+
     return () => cancelAnimationFrame(animationRef.current);
-  }, [targetPose, x, y, duration]);
+  }, [targetPose, duration]);
+
+  /* ------------------------------------------------------------------ */
+  /* Render                                                              */
+  /* ------------------------------------------------------------------ */
 
   return (
     <Human
-      humanRotation={currentPose.humanRotation}
-      headRotation={currentPose.headRotation}
-      foreUpperArmRotation={currentPose.foreUpperArmRotation}
-      foreLowerArmRotation={currentPose.foreLowerArmRotation}
-      foreHandRotation={currentPose.foreHandRotation}
-      hindUpperArmRotation={currentPose.hindUpperArmRotation}
-      hindLowerArmRotation={currentPose.hindLowerArmRotation}
-      hindHandRotation={currentPose.hindHandRotation}
-      hipRotation={currentPose.hipRotation}
-      foreUpperLegRotation={currentPose.foreUpperLegRotation}
-      foreLowerLegRotation={currentPose.foreLowerLegRotation}
-      foreFootRotation={currentPose.foreFootRotation}
-      hindUpperLegRotation={currentPose.hindUpperLegRotation}
-      hindLowerLegRotation={currentPose.hindLowerLegRotation}
-      hindFootRotation={currentPose.hindFootRotation}
-
-      x={currentPose.x}
-      y={currentPose.y}
+      {...currentPose}
 
       debug={debug}
       humanScale={humanScale}

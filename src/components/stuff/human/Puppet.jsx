@@ -3,19 +3,28 @@ import { HumanAnimator } from "./HumanAnimator";
 import { Draggable } from "./Draggable";
 
 export const Puppet = ({ darkMode }) => {
-  const DEFAULTS = {
+  /* ------------------------------------------------------------------ */
+  /* Defaults + ranges                                                   */
+  /* ------------------------------------------------------------------ */
+
+  const DEFAULT_JOINTS = {
     humanRotation: 0,
     headRotation: 0,
+
     foreUpperArmRotation: 180,
     foreLowerArmRotation: 0,
     foreHandRotation: 0,
+
     hindUpperArmRotation: 180,
     hindLowerArmRotation: 0,
     hindHandRotation: 0,
+
     hipRotation: 200,
+
     foreUpperLegRotation: -20,
     foreLowerLegRotation: 0,
     foreFootRotation: 70,
+
     hindUpperLegRotation: -20,
     hindLowerLegRotation: 0,
     hindFootRotation: 70,
@@ -24,54 +33,91 @@ export const Puppet = ({ darkMode }) => {
   const RANGES = {
     humanRotation: [0, 360],
     headRotation: [-40, 30],
+
     foreUpperArmRotation: [0, 360],
     foreLowerArmRotation: [0, 150],
     foreHandRotation: [-20, 20],
+
     hindUpperArmRotation: [0, 360],
     hindLowerArmRotation: [0, 150],
     hindHandRotation: [-20, 20],
+
     hipRotation: [190, 220],
+
     foreUpperLegRotation: [-60, 70],
     foreLowerLegRotation: [-150, 0],
     foreFootRotation: [30, 90],
+
     hindUpperLegRotation: [-60, 70],
     hindLowerLegRotation: [-150, 0],
     hindFootRotation: [30, 90],
   };
 
   const OFFSET_RANGE = [-300, 300];
+
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
-  const [joints, setJoints] = useState({ ...DEFAULTS });
+  /* ------------------------------------------------------------------ */
+  /* State                                                              */
+  /* ------------------------------------------------------------------ */
+
+  const [joints, setJoints] = useState({ ...DEFAULT_JOINTS });
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
 
-  // Single joint setter
+  /* ------------------------------------------------------------------ */
+  /* Joint helpers                                                       */
+  /* ------------------------------------------------------------------ */
+
   const setJoint = (key) => (e) => {
     const [min, max] = RANGES[key] ?? [0, 360];
     const value = clamp(Number(e.target.value), min, max);
     setJoints((s) => ({ ...s, [key]: value }));
   };
 
-  // Reset single joint
   const resetJoint = (key) => () =>
-    setJoints((s) => ({ ...s, [key]: DEFAULTS[key] }));
+    setJoints((s) => ({ ...s, [key]: DEFAULT_JOINTS[key] }));
 
-  // Reset everything
   const resetAll = () => {
-    setJoints({ ...DEFAULTS });
+    setJoints({ ...DEFAULT_JOINTS });
     setOffsetX(0);
     setOffsetY(0);
   };
 
-  // Compact slider component
+  /* ------------------------------------------------------------------ */
+  /* Copy to clipboard                                                   */
+  /* ------------------------------------------------------------------ */
+
+  const copyPoseToClipboard = () => {
+    // Include current offsets in the exported pose
+    const poseToCopy = {
+      ...joints,
+      offsetX,
+      offsetY,
+      borderX0: -180,
+      borderX1: 180,
+      borderY0: -180,
+      borderY1: 180,
+    };
+
+    const text = `export const copiedPose = ${JSON.stringify(poseToCopy, null, 2)};`;
+    navigator.clipboard.writeText(text);
+  
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* UI components                                                       */
+  /* ------------------------------------------------------------------ */
+
   const Slider = ({ label, joint }) => {
     const [min, max] = RANGES[joint] ?? [0, 360];
+
     return (
       <div style={{ marginBottom: 6 }}>
         <div style={{ fontSize: 12, marginBottom: 1 }}>
           {label}: {joints[joint]}°
         </div>
+
         <div style={{ display: "flex", alignItems: "center" }}>
           <input
             type="range"
@@ -97,14 +143,15 @@ export const Puppet = ({ darkMode }) => {
     );
   };
 
-  // Offset slider component
   const OffsetSlider = ({ label, value, setValue }) => {
     const [min, max] = OFFSET_RANGE;
+
     return (
       <div style={{ marginBottom: 6 }}>
         <div style={{ fontSize: 12, marginBottom: 1 }}>
           {label}: {value}px
         </div>
+
         <div style={{ display: "flex", alignItems: "center" }}>
           <input
             type="range"
@@ -130,27 +177,31 @@ export const Puppet = ({ darkMode }) => {
     );
   };
 
+  /* ------------------------------------------------------------------ */
+  /* Render                                                             */
+  /* ------------------------------------------------------------------ */
+
   return (
     <>
-      {/* Draggable Human */}
+      {/* Draggable human */}
       <Draggable initialX={300} initialY={200}>
         <div
           style={{
             transform: `translate(${offsetX}px, ${offsetY}px)`,
-            transition: "transform 0.3s ease", // <-- smooth offset transition
+            transition: "transform 0.3s ease",
           }}
         >
           <HumanAnimator
             targetPose={joints}
             duration={300}
-            debug={true}
-            humanScale={2}
+            debug
+            humanScale={1}
             darkMode={darkMode}
           />
         </div>
       </Draggable>
 
-      {/* Draggable Slider Panel */}
+      {/* Control panel */}
       <Draggable initialX={520} initialY={200}>
         <div
           style={{
@@ -173,12 +224,12 @@ export const Puppet = ({ darkMode }) => {
             Puppet Controls
           </div>
 
-          {/* Reset All Button */}
+          {/* Reset + Copy Buttons */}
           <div style={{ textAlign: "center", marginBottom: 6 }}>
             <button
               onClick={resetAll}
               style={{
-                padding: "4px 4px",
+                padding: "4px",
                 fontSize: 12,
                 cursor: "pointer",
                 borderRadius: 4,
@@ -186,18 +237,34 @@ export const Puppet = ({ darkMode }) => {
                 color: "var(--colour-6)",
                 fontWeight: "bold",
                 border: "none",
+                marginRight: 4,
               }}
             >
               Reset All
             </button>
+
+            <button
+              onClick={copyPoseToClipboard}
+              style={{
+                padding: "4px",
+                fontSize: 12,
+                cursor: "pointer",
+                borderRadius: 4,
+                background: "var(--colour-3)",
+                color: "var(--colour-6)",
+                fontWeight: "bold",
+                border: "none",
+              }}
+            >
+              Copy Pose
+            </button>
           </div>
 
-          {/* Offset Controls */}
           <OffsetSlider label="Offset X" value={offsetX} setValue={setOffsetX} />
           <OffsetSlider label="Offset Y" value={offsetY} setValue={setOffsetY} />
+
           <hr />
 
-          {/* Joint Controls */}
           <Slider label="Human" joint="humanRotation" />
           <hr />
           <Slider label="Head" joint="headRotation" />
