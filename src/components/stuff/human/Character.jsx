@@ -32,7 +32,7 @@ import {
   jumpLand,
 } from "./poses";
 
-export const Character = () => {
+export const Character = ({ darkMode }) => {
   /* ---------------- Pose state ---------------- */
   const [pose, setPose] = useState(standCasual);
   const [duration, setDuration] = useState(140);
@@ -446,7 +446,7 @@ export const Character = () => {
   /* ---------------- Render ---------------- */
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-      <Draggable>
+      {/* <Draggable> */}
         <div
           ref={wrapperRef}
           style={{
@@ -473,10 +473,11 @@ export const Character = () => {
               duration={duration}
               debug={false}
               humanScale={0.5}
+              darkMode={darkMode}
             />
           </div>
         </div>
-      </Draggable>
+      {/* </Draggable> */}
     </div>
   );
 };

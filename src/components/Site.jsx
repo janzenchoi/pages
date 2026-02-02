@@ -7,8 +7,11 @@ import { DEFAULT_MODE, HEADER_HEIGHT } from "../helper/constant";
 import { getStoredValue } from "../helper/storage";
 import { Body } from "./Body";
 import { Ball } from "./stuff/Ball";
+import { Character } from "./stuff/human/Character";
+
 import fg_dark from "../assets/janzen/fg_dark.png";
 import fg_light from "../assets/janzen/fg_light.png";
+
 
 /**
  * Site
@@ -72,6 +75,7 @@ export const Site = () => {
       </div>
       <Footer/>
       {ballExists && <Ball/>}
+      {/* <Character darkMode={colourTheme === "dark"}/> */}
     </HashRouter>
   </div>
 }

@@ -15,7 +15,7 @@ export const Activities = ({ mobileMode, colourTheme }) => {
       <Card mobileMode={mobileMode} title={"NOTHING"}/>
       {/* <Puppet darkMode={colourTheme === "dark"}/> */}
       {/* <Controller/> */}
-      <Character/>
+      <Character darkMode={colourTheme === "dark"}/>
     </div>
   );
 }
