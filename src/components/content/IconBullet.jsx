@@ -46,6 +46,7 @@ export const IconBullet = ({
     height: mobileMode ? "3rem" : "4.5rem",
     width: mobileMode ? "3rem" : "4.5rem",
     borderRadius: "8px",
+    border: "1px solid var(--colour-4)",
     backgroundColor: "var(--colour-3)",
   };
   const textContainer = {

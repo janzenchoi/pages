@@ -8,8 +8,9 @@ import { HEADER_HEIGHT, FOOTER_HEIGHT, MAX_WIDTH } from "../helper/constant";
  * The body of the page
  * @param {boolean} mobileMode whether to use mobile or desktop view
  * @param {boolean} colourTheme the theme to colour the site
+ * @param {*} activityController controller for activities
  */
-export const Body = ({ mobileMode, colourTheme }) => {
+export const Body = ({ mobileMode, colourTheme, activityController }) => {
 
   // Container styles
   const outerStyle = {
@@ -37,7 +38,7 @@ export const Body = ({ mobileMode, colourTheme }) => {
           <Route path="/" element={<Home mobileMode={mobileMode} colourTheme={colourTheme}/>}/>
           <Route path="/home" element={<Home mobileMode={mobileMode} colourTheme={colourTheme}/>}/>
           <Route path="/resume" element={<Resume mobileMode={mobileMode} colourTheme={colourTheme}/>}/>
-          <Route path="/activities" element={<Activities mobileMode={mobileMode} colourTheme={colourTheme}/>}/>
+          <Route path="/activities" element={<Activities mobileMode={mobileMode} colourTheme={colourTheme} activityController={activityController}/>}/>
         </Routes>
       </div>
     </div>

@@ -28,11 +28,20 @@ export const Site = () => {
   const { isMobile } = useViewport();
   const [ forceMobile, setForceMobile ] = useState(getStoredValue("force-mobile") === "true");
   const [ mobileMode, setMobileMode ] = useState(isMobile || forceMobile);
-  const [ ballExists, setBallExists ] = useState(false);
-  const [ janzenExists, setJanzenExists ] = useState(false);
   useEffect(() => {
     setMobileMode(isMobile || forceMobile);
   }, [isMobile, forceMobile]);
+
+  // Activities
+  const [status, setStatus] = useState("none");
+  const [ ballExists, setBallExists ] = useState(false);
+  const [ janzenExists, setJanzenExists ] = useState(false);
+  const activityController = {
+    status,
+    setStatus,
+    setBallExists,
+    setJanzenExists
+  };
 
   // Define style for site
   const siteStyle = {
@@ -65,20 +74,17 @@ export const Site = () => {
         setForceMobile={setForceMobile}
         colourTheme={colourTheme}
         setColourTheme={setColourTheme}
-        ballExists={ballExists}
-        setBallExists={setBallExists}
-        janzenExists={janzenExists}
-        setJanzenExists={setJanzenExists}
         />
       <div>
         <Body
           mobileMode={mobileMode}
           colourTheme={colourTheme}
-          />
+          activityController={activityController}
+        />
       </div>
       <Footer/>
       {ballExists && <Ball/>}
-      {janzenExists && <Character darkMode={colourTheme === "dark"}/>}
+      {janzenExists && <Character mobileMode={mobileMode} darkMode={colourTheme === "dark"}/>}
     </HashRouter>
   </div>
 }

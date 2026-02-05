@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { HumanAnimator } from "./HumanAnimator";
 
 import {
@@ -41,7 +41,60 @@ import {
   crouchWalk2
 } from "./poses";
 
-export const Character = ({ darkMode }) => {
+export const Character = ({ mobileMode, darkMode }) => {
+  /* =========================================================================
+     MANUAL GROUND CONFIG (EDIT HERE)
+  ========================================================================= */
+  const HUMAN_SCALE = mobileMode ? 0.6 : 1.0;
+
+  // EDIT HERE
+  const BASE_GROUND_PX_FROM_BOTTOM = 155; // px @ scale=1
+  const groundPxFromBottom = BASE_GROUND_PX_FROM_BOTTOM * HUMAN_SCALE;
+
+  /* =========================================================================
+     SPEED / JUMP CONFIG (EDIT HERE)
+  ========================================================================= */
+  const WALK_FRAME = 150;
+  const RUN_FRAME = 100;
+  const CROUCH_FRAME_MS = 400;
+  const CROUCH_PRIME_MS = 200;
+  const PRIME_MS = 100;
+  const TAP_THRESHOLD = 200;
+
+  const BASE_WALK_VELOCITY = 0.40;
+  const BASE_RUN_VELOCITY = 0.80;
+  const BASE_CROUCH_VELOCITY = 0.10;
+
+  const WALK_VELOCITY = BASE_WALK_VELOCITY * HUMAN_SCALE;
+  const RUN_VELOCITY = BASE_RUN_VELOCITY * HUMAN_SCALE;
+  const CROUCH_VELOCITY = BASE_CROUCH_VELOCITY * HUMAN_SCALE;
+
+  const AIR_CONTROL_MULT = 0.50;
+  const BASE_WALK_JUMP_BOOST = 0.24;
+  const BASE_RUN_JUMP_BOOST = 0.44;
+
+  const WALK_JUMP_BOOST = BASE_WALK_JUMP_BOOST * HUMAN_SCALE;
+  const RUN_JUMP_BOOST = BASE_RUN_JUMP_BOOST * HUMAN_SCALE;
+
+  const STAND_AIR_CONTROL_MULT = 0.50;
+  const BASE_STAND_AIR_CONTROL_CAP = 0.10;
+  const STAND_AIR_CONTROL_CAP = BASE_STAND_AIR_CONTROL_CAP * HUMAN_SCALE;
+
+  const BASE_GRAVITY_UP = 0.0016;
+  const BASE_GRAVITY_CUT = 0.0040;
+  const BASE_GRAVITY_DOWN = 0.0052;
+
+  const GRAVITY_UP = BASE_GRAVITY_UP * HUMAN_SCALE;
+  const GRAVITY_CUT = BASE_GRAVITY_CUT * HUMAN_SCALE;
+  const GRAVITY_DOWN = BASE_GRAVITY_DOWN * HUMAN_SCALE;
+
+  const BASE_JUMP_VY_TAP = -0.70;
+  const BASE_JUMP_VY_HOLD = -0.90;
+  const RUN_JUMP_VY_MULT = 1.05;
+
+  const JUMP_VY_TAP = BASE_JUMP_VY_TAP * HUMAN_SCALE;
+  const JUMP_VY_HOLD = BASE_JUMP_VY_HOLD * HUMAN_SCALE;
+
   /* ---------------- Minimal React state ---------------- */
   const [pose, setPose] = useState(standCasual);
   const [duration, setDuration] = useState(140);
@@ -51,16 +104,17 @@ export const Character = ({ darkMode }) => {
   /* ---------------- DOM refs ---------------- */
   const wrapperRef = useRef(null);
 
-  /* ---------------- World coords ----------------
-     xRef: px offset from viewport center
-     yAirRef: px offset from "ground" (0 on ground, negative up)
-  ------------------------------------------------ */
+  /* ---------------- World coords ---------------- */
   const xRef = useRef(0);
   const yAirRef = useRef(0);
-  const vyRef = useRef(0); // px/ms (negative up)
+  const vyRef = useRef(0);
 
-  /* ---------------- Drag world anchor (prevents drift) ---------------- */
-  const dragWorldRef = useRef({ x: 0, y: 0 }); // offsets from center, px
+  /* ---------------- Ground caching ---------------- */
+  const groundYRef = useRef(0);
+
+  const recomputeGroundY = () => {
+    groundYRef.current = window.innerHeight - groundPxFromBottom;
+  };
 
   /* ---------------- Loop refs ---------------- */
   const lastTsRef = useRef(0);
@@ -68,21 +122,24 @@ export const Character = ({ darkMode }) => {
   const animatingRef = useRef(false);
 
   /* ---------------- Input refs ---------------- */
-  const directionRef = useRef(null); // "left" | "right" | null
+  const directionRef = useRef(null);
   const runningRef = useRef(false);
+  const shiftHeldRef = useRef(false);
 
   const sHeldRef = useRef(false);
-  const crouchingRef = useRef(false);      // true when S held
-  const crouchMovingRef = useRef(false);   // true when S + A/D
-  const crouchPhaseRef = useRef(0);        // 0 -> crouchWalk1, 1 -> crouchWalk2
+  const crouchQueuedRef = useRef(false); // NEW: queue crouch while airborne
+  const crouchingRef = useRef(false);
+  const crouchMovingRef = useRef(false);
+  const crouchPhaseRef = useRef(0);
   const crouchTimerRef = useRef(0);
 
-  /* ---------------- Drag refs (pointer events) ---------------- */
+  /* ---------------- Drag refs ---------------- */
   const draggingRef = useRef(false);
   const dragPtrIdRef = useRef(null);
-  const dragOffsetRef = useRef({ dx: 0, dy: 0 }); // pointer - wrapperCenter
+  const dragOffsetRef = useRef({ dx: 0, dy: 0 });
+  const dragAbsRef = useRef({ x: 0, y: 0 });
 
-  /* ---------------- Struggle loop while grabbed ---------------- */
+  /* ---------------- Struggle loop ---------------- */
   const strugglePhaseRef = useRef(0);
   const struggleTimerRef = useRef(0);
   const STRUGGLE_FRAME_MS = 200;
@@ -92,134 +149,74 @@ export const Character = ({ darkMode }) => {
   const strideTimerRef = useRef(0);
 
   /* ---------------- Jump state ---------------- */
-  // "none" | "prime" | "air" | "preland" | "land"
   const jumpStateRef = useRef("none");
   const jumpTimerRef = useRef(0);
 
   const wHeldRef = useRef(false);
   const jumpHoldStartRef = useRef(0);
 
-  // "stand" | "walk" | "run"
   const jumpModeRef = useRef("stand");
 
   /* ---------------- Strides ---------------- */
-  const walkStrides = [walkStride1, walkStride2, walkStride3, walkStride4, walkStride5, walkStride6];
-  const runStrides = [runStride1, runStride2, runStride3, runStride4, runStride5, runStride6];
+  const walkStrides = useMemo(
+    () => [walkStride1, walkStride2, walkStride3, walkStride4, walkStride5, walkStride6],
+    []
+  );
+  const runStrides = useMemo(
+    () => [runStride1, runStride2, runStride3, runStride4, runStride5, runStride6],
+    []
+  );
 
-  /* ---------------- Scale ---------------- */
-  const HUMAN_SCALE = 1;
-
-  /* ---------------- Movement tuning ---------------- */
-  const WALK_FRAME = 150;
-  const RUN_FRAME = 100;
-
-  const WALK_VELOCITY = 0.40*HUMAN_SCALE; // px/ms
-  const RUN_VELOCITY = 0.80*HUMAN_SCALE;  // px/ms
-
-  // crouch movement + animation
-  const CROUCH_VELOCITY = 0.1*HUMAN_SCALE;   // px/ms (while S + A/D)
-  const CROUCH_FRAME_MS = 400;    // swap crouchWalk1/crouchWalk2
-
-  const AIR_CONTROL_MULT = 0.50;
-  const WALK_JUMP_BOOST = 0.24*HUMAN_SCALE; // px/ms (air only)
-  const RUN_JUMP_BOOST = 0.44*HUMAN_SCALE;  // px/ms (air only)
-
-  const STAND_AIR_CONTROL_MULT = 0.50;
-  const STAND_AIR_CONTROL_CAP = 0.10;
-
-  /* ---------------- Gravity / jump tuning ---------------- */
-  const GRAVITY_UP = 0.002;
-  const GRAVITY_CUT = 0.0040;
-  const GRAVITY_DOWN = 0.0052;
-
-  const JUMP_VY_TAP = -0.70;
-  const JUMP_VY_HOLD = -0.90;
-  const RUN_JUMP_VY_MULT = 1.05;
-
-  const TAP_THRESHOLD = 200;
-  const PRIME_MS = 100;
-
-  /* ---------------- Helpers ---------------- */
-  const ensureLoop = () => {
-    if (animatingRef.current) return;
-    animatingRef.current = true;
-    lastTsRef.current = 0;
-    rafRef.current = requestAnimationFrame(loop);
-  };
-
-  const stopLoopIfIdle = () => {
-    const hasDir = !!directionRef.current;
-    const jumping = jumpStateRef.current !== "none";
-    const dragging = draggingRef.current;
-    const crouching = crouchingRef.current;
-
-    if (!hasDir && !jumping && !dragging && !crouching) {
-      animatingRef.current = false;
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-
-      strideIndexRef.current = 0;
-      strideTimerRef.current = 0;
-
-      setPose(standCasual);
-      setDuration(120);
-    }
-  };
-
-  const getPoseBoundsPx = (p) => {
-    const ox = (p.offsetX ?? 0) * HUMAN_SCALE;
-    const oy = (p.offsetY ?? 0) * HUMAN_SCALE;
-
-    const bx0 = (p.borderX0 ?? -180) * HUMAN_SCALE + ox;
-    const bx1 = (p.borderX1 ?? 180) * HUMAN_SCALE + ox;
-    const by0 = (p.borderY0 ?? -180) * HUMAN_SCALE + oy;
-    const by1 = (p.borderY1 ?? 180) * HUMAN_SCALE + oy;
-
-    return { bx0, bx1, by0, by1 };
-  };
-
-  // Perfect floor alignment when yAir=0:
-  const computeGroundYFromPose = (p) => {
-    const vh = window.innerHeight;
-    const { by1 } = getPoseBoundsPx(p);
-    return (vh * 0.5) - by1;
-  };
-
-  const applyTransformFromAir = (x, yAir, p) => {
+  /* =========================================================================
+     TRANSFORM: MANUAL GROUND (uses cached groundYRef)
+  ========================================================================= */
+  const applyTransformFromAir = (x, yAir) => {
     if (!wrapperRef.current) return;
-    const yTotal = computeGroundYFromPose(p) + yAir;
-    wrapperRef.current.style.transform =
-      `translate3d(-50%, -50%, 0) translate3d(${x}px, ${yTotal}px, 0)`;
-  };
-
-  const applyTransformFromWorld = (wx, wy) => {
-    if (!wrapperRef.current) return;
-    wrapperRef.current.style.transform =
-      `translate3d(-50%, -50%, 0) translate3d(${wx}px, ${wy}px, 0)`;
-  };
-
-  const clampXToWindow = (x, p) => {
     const vw = window.innerWidth;
-    const { bx0, bx1 } = getPoseBoundsPx(p);
+    const tx = vw * 0.5 + x;
+    const ty = groundYRef.current + yAir;
+    wrapperRef.current.style.transform =
+      `translate3d(-50%, 0, 0) translate3d(${tx}px, ${ty}px, 0)`;
+  };
 
-    const minX = -vw * 0.5 - bx0;
-    const maxX = vw * 0.5 - bx1;
+  const applyTransformFromAbs = (tx, ty) => {
+    if (!wrapperRef.current) return;
+    wrapperRef.current.style.transform =
+      `translate3d(-50%, 0, 0) translate3d(${tx}px, ${ty}px, 0)`;
+  };
 
+  /* =========================================================================
+     CLAMPS (simple)
+  ========================================================================= */
+  const SCREEN_PAD_X = 40 * HUMAN_SCALE;
+
+  const clampXToWindow = (x) => {
+    const vw = window.innerWidth;
+    const minX = -vw * 0.5 + SCREEN_PAD_X;
+    const maxX = vw * 0.5 - SCREEN_PAD_X;
     return Math.max(minX, Math.min(maxX, x));
   };
 
-  const clampYAirToCeiling = (yAir, p) => {
+  const clampYAirToCeiling = (yAir) => {
     const vh = window.innerHeight;
-    const { by0, by1 } = getPoseBoundsPx(p);
-    const minYAir = -vh - (by0 - by1);
+    const minYAir = -vh + 50 * HUMAN_SCALE;
     return Math.max(minYAir, yAir);
   };
 
-  const clampWorldYToCeiling = (wy, p) => {
+  const clampAbs = (tx, ty) => {
+    const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const { by0 } = getPoseBoundsPx(p);
-    const minWy = -vh * 0.5 - by0;
-    return Math.max(minWy, wy);
+
+    const minTx = SCREEN_PAD_X;
+    const maxTx = vw - SCREEN_PAD_X;
+
+    const minTy = 0;
+    const maxTy = vh;
+
+    return {
+      tx: Math.max(minTx, Math.min(maxTx, tx)),
+      ty: Math.max(minTy, Math.min(maxTy, ty))
+    };
   };
 
   const setPoseNow = (nextPose, nextDuration) => {
@@ -236,10 +233,43 @@ export const Character = ({ darkMode }) => {
     yAirRef.current = 0;
   };
 
-  /* ---------------- Movement control ---------------- */
+  const isAirOrJumping = () => jumpStateRef.current !== "none" || yAirRef.current < 0;
+
+  const syncRunState = () => {
+    const canRun = !!directionRef.current && !crouchingRef.current && !draggingRef.current;
+    runningRef.current = !!(shiftHeldRef.current && canRun);
+  };
+
+  const ensureLoop = () => {
+    if (animatingRef.current) return;
+    animatingRef.current = true;
+    lastTsRef.current = 0;
+    rafRef.current = requestAnimationFrame(loop);
+  };
+
+  const stopLoopIfIdle = () => {
+    const hasDir = !!directionRef.current;
+    const jumping = jumpStateRef.current !== "none" || yAirRef.current < 0;
+    const dragging = draggingRef.current;
+    const crouching = crouchingRef.current;
+
+    if (!hasDir && !jumping && !dragging && !crouching) {
+      animatingRef.current = false;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+
+      strideIndexRef.current = 0;
+      strideTimerRef.current = 0;
+
+      setPose(standCasual);
+      setDuration(120);
+    }
+  };
+
   const beginMovement = () => {
-    // cannot walk/run animation if crouching or dragging
     if (crouchingRef.current || draggingRef.current) return;
+
+    syncRunState();
 
     const running = runningRef.current;
     const strides = running ? runStrides : walkStrides;
@@ -248,80 +278,75 @@ export const Character = ({ darkMode }) => {
     strideIndexRef.current = 1;
     strideTimerRef.current = 0;
 
-    if (jumpStateRef.current === "none") {
-      setPoseNow(strides[0], frame);
-    }
-
+    if (jumpStateRef.current === "none") setPoseNow(strides[0], frame);
     ensureLoop();
   };
 
-  /* ---------------- Jump pose selection ---------------- */
   const setJumpPoseForState = (state) => {
     const mode = jumpModeRef.current;
 
     if (mode === "stand") {
       if (state === "prime") setPoseNow(standJumpPrime, PRIME_MS);
       else if (state === "air") setPoseNow(standJumpFly, 200);
-      else if (state === "preland" || state === "land") setPoseNow(standJumpLand, PRIME_MS);
+      else setPoseNow(standJumpLand, PRIME_MS);
       return;
     }
 
     if (mode === "walk") {
       if (state === "prime") setPoseNow(jumpPrime, 140);
       else if (state === "air") setPoseNow(walkJumpFly, 180);
-      else if (state === "preland" || state === "land") setPoseNow(standJumpLand, PRIME_MS);
+      else setPoseNow(standJumpLand, PRIME_MS);
       return;
     }
 
-    if (mode === "run") {
-      if (state === "prime") setPoseNow(jumpPrime, PRIME_MS);
-      else if (state === "air") {
-        const vy = vyRef.current;
-        if (vy < -0.20) setPoseNow(jumpFly, 140);
-        else if (vy < 0.10) setPoseNow(jumpPeak, 140);
-        else setPoseNow(jumpFall, 140);
-      } else if (state === "preland" || state === "land") {
-        setPoseNow(jumpLand, PRIME_MS);
-      }
+    if (state === "prime") {
+      setPoseNow(jumpPrime, PRIME_MS);
+      return;
     }
+
+    if (state === "air") {
+      const vy = vyRef.current;
+      if (vy < -0.20 * HUMAN_SCALE) setPoseNow(jumpFly, 140);
+      else if (vy < 0.10 * HUMAN_SCALE) setPoseNow(jumpPeak, 140);
+      else setPoseNow(jumpFall, 140);
+      return;
+    }
+
+    setPoseNow(jumpLand, PRIME_MS);
   };
 
-  /* ---------------- Crouch control ---------------- */
   const enterCrouch = () => {
-    if (draggingRef.current || yAirRef.current < 0) return;
+    if (draggingRef.current) return;
+    if (isAirOrJumping()) return;
 
     sHeldRef.current = true;
     crouchingRef.current = true;
 
-    // cannot run or jump when crouching
     runningRef.current = false;
     cancelJumpNow();
 
-    // choose crouch mode based on whether direction is held
     crouchMovingRef.current = !!directionRef.current;
     crouchPhaseRef.current = 0;
     crouchTimerRef.current = 0;
 
-    if (crouchMovingRef.current) {
-      setPoseNow(crouchWalk1, CROUCH_FRAME_MS);
-    } else {
-      setPoseNow(crouch, 200);
-    }
+    if (crouchMovingRef.current) setPoseNow(crouchWalk1, CROUCH_FRAME_MS);
+    else setPoseNow(crouch, CROUCH_PRIME_MS);
 
     ensureLoop();
   };
 
   const exitCrouch = () => {
     sHeldRef.current = false;
+    crouchQueuedRef.current = false; // NEW: clear any queued crouch when exiting
     crouchingRef.current = false;
     crouchMovingRef.current = false;
     crouchTimerRef.current = 0;
     crouchPhaseRef.current = 0;
 
-    // back to normal behavior depending on input
-    if (directionRef.current) {
-      beginMovement();
-    } else {
+    syncRunState();
+
+    if (directionRef.current) beginMovement();
+    else {
       setPoseNow(standCasual, 120);
       stopLoopIfIdle();
     }
@@ -330,7 +355,6 @@ export const Character = ({ darkMode }) => {
   const updateCrouchModeFromDir = () => {
     if (!crouchingRef.current) return;
 
-    // if S held, crouchMoving is true when A/D held
     const shouldMove = !!directionRef.current;
     if (shouldMove === crouchMovingRef.current) return;
 
@@ -338,23 +362,19 @@ export const Character = ({ darkMode }) => {
     crouchTimerRef.current = 0;
     crouchPhaseRef.current = 0;
 
-    if (crouchMovingRef.current) {
-      setPoseNow(crouchWalk1, CROUCH_FRAME_MS);
-    } else {
-      setPoseNow(crouch, 200);
-    }
+    if (crouchMovingRef.current) setPoseNow(crouchWalk1, CROUCH_FRAME_MS);
+    else setPoseNow(crouch, 200);
 
     ensureLoop();
   };
 
-  /* ---------------- Jump control ---------------- */
   const startJump = () => {
-    // cannot jump if crouching or dragging
     if (crouchingRef.current) return;
     if (draggingRef.current) return;
     if (jumpStateRef.current !== "none") return;
 
     const dirAtStart = directionRef.current;
+    syncRunState();
     const isRunning = runningRef.current && !!dirAtStart;
 
     jumpModeRef.current = dirAtStart ? (isRunning ? "run" : "walk") : "stand";
@@ -383,7 +403,6 @@ export const Character = ({ darkMode }) => {
     }
   };
 
-  /* ---------------- Drag control ---------------- */
   const beginDrag = (e) => {
     if (!wrapperRef.current) return;
 
@@ -391,22 +410,10 @@ export const Character = ({ darkMode }) => {
     setIsDraggingUi(true);
     dragPtrIdRef.current = e.pointerId;
 
-    // cancel movement + crouch + jump
     directionRef.current = null;
     runningRef.current = false;
     if (crouchingRef.current) exitCrouch();
     cancelJumpNow();
-
-    // world anchor from current visual position
-    dragWorldRef.current = {
-      x: xRef.current,
-      y: computeGroundYFromPose(pose) + yAirRef.current
-    };
-
-    // struggle init
-    strugglePhaseRef.current = 0;
-    struggleTimerRef.current = 0;
-    setPoseNow(struggle1, STRUGGLE_FRAME_MS);
 
     const rect = wrapperRef.current.getBoundingClientRect();
     const cx = rect.left + rect.width * 0.5;
@@ -417,6 +424,12 @@ export const Character = ({ darkMode }) => {
       dy: e.clientY - cy
     };
 
+    dragAbsRef.current = { x: cx, y: cy };
+
+    strugglePhaseRef.current = 0;
+    struggleTimerRef.current = 0;
+    setPoseNow(struggle1, STRUGGLE_FRAME_MS);
+
     wrapperRef.current.setPointerCapture(e.pointerId);
     ensureLoop();
   };
@@ -425,20 +438,12 @@ export const Character = ({ darkMode }) => {
     if (!draggingRef.current) return;
     if (dragPtrIdRef.current !== e.pointerId) return;
 
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const desiredCx = e.clientX - dragOffsetRef.current.dx;
+    const desiredCy = e.clientY - dragOffsetRef.current.dy;
 
-    const targetCx = e.clientX - dragOffsetRef.current.dx;
-    const targetCy = e.clientY - dragOffsetRef.current.dy;
-
-    let wx = targetCx - vw * 0.5;
-    let wy = targetCy - vh * 0.5;
-
-    wy = clampWorldYToCeiling(wy, pose);
-    wx = clampXToWindow(wx, pose);
-
-    dragWorldRef.current.x = wx;
-    dragWorldRef.current.y = wy;
+    const clamped = clampAbs(desiredCx, desiredCy);
+    dragAbsRef.current.x = clamped.tx;
+    dragAbsRef.current.y = clamped.ty;
   };
 
   const endDrag = (e) => {
@@ -449,10 +454,14 @@ export const Character = ({ darkMode }) => {
     setIsDraggingUi(false);
     dragPtrIdRef.current = null;
 
-    // convert world -> air space for physics
-    xRef.current = clampXToWindow(dragWorldRef.current.x, pose);
-    yAirRef.current = dragWorldRef.current.y - computeGroundYFromPose(pose);
+    const vw = window.innerWidth;
 
+    const cx = dragAbsRef.current.x;
+    const cy = dragAbsRef.current.y;
+
+    xRef.current = clampXToWindow(cx - vw * 0.5);
+
+    yAirRef.current = cy - groundYRef.current;
     if (yAirRef.current > 0) yAirRef.current = 0;
 
     if (yAirRef.current < 0) {
@@ -472,14 +481,14 @@ export const Character = ({ darkMode }) => {
     stopLoopIfIdle();
   };
 
-  /* ---------------- rAF loop ---------------- */
   const loop = (ts) => {
     if (!lastTsRef.current) lastTsRef.current = ts;
     const rawDt = ts - lastTsRef.current;
     const dt = Math.min(50, rawDt);
     lastTsRef.current = ts;
 
-    /* ---------------- Drag mode: struggle + render from world anchor ---------------- */
+    syncRunState();
+
     if (draggingRef.current) {
       struggleTimerRef.current += dt;
       if (struggleTimerRef.current >= STRUGGLE_FRAME_MS) {
@@ -488,22 +497,20 @@ export const Character = ({ darkMode }) => {
         setPoseNow(strugglePhaseRef.current === 0 ? struggle1 : struggle2, STRUGGLE_FRAME_MS);
       }
 
-      applyTransformFromWorld(dragWorldRef.current.x, dragWorldRef.current.y);
+      applyTransformFromAbs(dragAbsRef.current.x, dragAbsRef.current.y);
+
       rafRef.current = requestAnimationFrame(loop);
       return;
     }
 
-    /* ---------------- Crouch mode ---------------- */
     if (crouchingRef.current) {
-      // no jumping/running; ensure velocities are grounded
       runningRef.current = false;
       jumpStateRef.current = "none";
       vyRef.current = 0;
 
       const dir = directionRef.current;
-
-      // choose whether crouch-moving
       const shouldMove = !!dir;
+
       if (shouldMove !== crouchMovingRef.current) {
         crouchMovingRef.current = shouldMove;
         crouchTimerRef.current = 0;
@@ -512,12 +519,10 @@ export const Character = ({ darkMode }) => {
         else setPoseNow(crouch, 200);
       }
 
-      // horizontal movement while crouch-walking
       if (crouchMovingRef.current && dir) {
         xRef.current += (dir === "right" ? 1 : -1) * CROUCH_VELOCITY * dt;
       }
 
-      // animate crouchWalk1/2 at ~600ms when moving
       if (crouchMovingRef.current) {
         crouchTimerRef.current += dt;
         if (crouchTimerRef.current >= CROUCH_FRAME_MS) {
@@ -527,25 +532,21 @@ export const Character = ({ darkMode }) => {
         }
       }
 
-      // keep on ground (perfect floor)
       yAirRef.current = 0;
-
-      xRef.current = clampXToWindow(xRef.current, pose);
-      applyTransformFromAir(xRef.current, yAirRef.current, pose);
+      xRef.current = clampXToWindow(xRef.current);
+      applyTransformFromAir(xRef.current, yAirRef.current);
 
       rafRef.current = requestAnimationFrame(loop);
       return;
     }
 
-    /* ---------------- Normal movement + jumping ---------------- */
     const dir = directionRef.current;
     const running = runningRef.current;
 
     const jumpState = jumpStateRef.current;
-    const inAir = jumpState === "air" || jumpState === "preland";
+    const inAir = jumpState === "air";
     const primeOrLand = jumpState === "prime" || jumpState === "land";
 
-    // Horizontal
     if (dir) {
       const baseGroundVel = running ? RUN_VELOCITY : WALK_VELOCITY;
 
@@ -553,7 +554,10 @@ export const Character = ({ darkMode }) => {
         const mode = jumpModeRef.current;
 
         if (mode === "stand") {
-          const standAirVel = Math.min(WALK_VELOCITY * STAND_AIR_CONTROL_MULT, STAND_AIR_CONTROL_CAP);
+          const standAirVel = Math.min(
+            WALK_VELOCITY * STAND_AIR_CONTROL_MULT,
+            STAND_AIR_CONTROL_CAP
+          );
           xRef.current += (dir === "right" ? 1 : -1) * standAirVel * dt;
         } else {
           const airControlVel = baseGroundVel * AIR_CONTROL_MULT;
@@ -565,7 +569,6 @@ export const Character = ({ darkMode }) => {
       }
     }
 
-    // Jump state machine
     if (jumpState === "prime") {
       jumpTimerRef.current += dt;
       if (jumpTimerRef.current >= PRIME_MS) {
@@ -573,37 +576,25 @@ export const Character = ({ darkMode }) => {
         jumpTimerRef.current = 0;
         setJumpPoseForState("air");
       }
-    } else if (jumpState === "air" || jumpState === "preland") {
-      // drag-drop falling pose lock
-      if (jumpModeRef.current === "stand" && vyRef.current >= 0) {
-        setPoseNow(standJumpFly, 160);
-      }
-
+    } else if (jumpState === "air") {
       const rising = vyRef.current < 0;
-      const g = rising
-        ? (wHeldRef.current ? GRAVITY_UP : GRAVITY_CUT)
-        : GRAVITY_DOWN;
+      const g = rising ? (wHeldRef.current ? GRAVITY_UP : GRAVITY_CUT) : GRAVITY_DOWN;
 
       vyRef.current += g * dt;
       yAirRef.current += vyRef.current * dt;
 
-      // ceiling collision
-      const yCeil = clampYAirToCeiling(yAirRef.current, pose);
+      const yCeil = clampYAirToCeiling(yAirRef.current);
       if (yCeil !== yAirRef.current) {
         yAirRef.current = yCeil;
         if (vyRef.current < 0) vyRef.current = 0;
       }
 
-      // normal pose selection for real jumps
-      if (!(jumpModeRef.current === "stand" && vyRef.current >= 0)) {
-        setJumpPoseForState("air");
-      }
+      setJumpPoseForState("air");
 
-      // ground collision
       if (vyRef.current > 0 && yAirRef.current >= 0) {
+        // LANDING
         yAirRef.current = 0;
         vyRef.current = 0;
-
         jumpStateRef.current = "land";
         jumpTimerRef.current = 0;
         setJumpPoseForState("land");
@@ -611,15 +602,25 @@ export const Character = ({ darkMode }) => {
     } else if (jumpState === "land") {
       jumpTimerRef.current += dt;
       if (jumpTimerRef.current >= PRIME_MS) {
+        // FINISH LANDING
         jumpStateRef.current = "none";
         jumpTimerRef.current = 0;
         jumpModeRef.current = "stand";
+
+        syncRunState();
+
+        // NEW: if S was pressed mid-air and still held, crouch immediately on landing
+        if (crouchQueuedRef.current && sHeldRef.current && !draggingRef.current) {
+          crouchQueuedRef.current = false;
+          enterCrouch();
+          rafRef.current = requestAnimationFrame(loop);
+          return;
+        }
 
         if (directionRef.current) beginMovement();
         else setPoseNow(standCasual, 120);
       }
     } else {
-      // Stride animation
       if (dir) {
         strideTimerRef.current += dt;
 
@@ -638,18 +639,20 @@ export const Character = ({ darkMode }) => {
       }
     }
 
-    // Bounds + render
-    xRef.current = clampXToWindow(xRef.current, pose);
+    xRef.current = clampXToWindow(xRef.current);
 
-    const yCeil = clampYAirToCeiling(yAirRef.current, pose);
-    if (yCeil !== yAirRef.current) {
-      yAirRef.current = yCeil;
+    const yCeil2 = clampYAirToCeiling(yAirRef.current);
+    if (yCeil2 !== yAirRef.current) {
+      yAirRef.current = yCeil2;
       if (vyRef.current < 0) vyRef.current = 0;
     }
 
-    applyTransformFromAir(xRef.current, yAirRef.current, pose);
+    applyTransformFromAir(xRef.current, yAirRef.current);
 
-    if (animatingRef.current && (directionRef.current || jumpStateRef.current !== "none")) {
+    if (
+      animatingRef.current &&
+      (directionRef.current || jumpStateRef.current !== "none" || yAirRef.current < 0)
+    ) {
       rafRef.current = requestAnimationFrame(loop);
     } else {
       stopLoopIfIdle();
@@ -664,13 +667,19 @@ export const Character = ({ darkMode }) => {
 
       const k = e.key.toLowerCase();
 
-      // Crouch (S): takes priority over run/jump
       if (k === "s") {
+        // NEW: queue crouch if pressed mid-air; crouch instantly if grounded
+        if (isAirOrJumping()) {
+          sHeldRef.current = true;
+          crouchQueuedRef.current = true;
+          ensureLoop();
+          return;
+        }
+
         if (!sHeldRef.current) enterCrouch();
         return;
       }
 
-      // Direction
       let dir = null;
       if (k === "a") dir = "left";
       if (k === "d") dir = "right";
@@ -679,7 +688,6 @@ export const Character = ({ darkMode }) => {
         directionRef.current = dir;
         setFacing(dir);
 
-        // If crouching (S held), switch into crouch-move mode instead of walk/run
         if (crouchingRef.current) {
           runningRef.current = false;
           updateCrouchModeFromDir();
@@ -687,22 +695,19 @@ export const Character = ({ darkMode }) => {
           return;
         }
 
-        // Not crouching: allow run based on shift
-        runningRef.current = e.shiftKey;
+        syncRunState();
         beginMovement();
         return;
       }
 
-      // Shift: running only if NOT crouching
       if (k === "shift") {
-        if (crouchingRef.current) return;
-        if (!directionRef.current) return;
-        runningRef.current = true;
-        beginMovement();
+        shiftHeldRef.current = true;
+        syncRunState();
+
+        if (!crouchingRef.current && !isAirOrJumping() && directionRef.current) beginMovement();
         return;
       }
 
-      // Jump (W): disabled while crouching
       if (k === "w") {
         if (crouchingRef.current) return;
         startJump();
@@ -713,7 +718,10 @@ export const Character = ({ darkMode }) => {
       const k = e.key.toLowerCase();
 
       if (k === "s") {
-        if (sHeldRef.current) exitCrouch();
+        // NEW: releasing S cancels queued crouch (and exits if already crouching)
+        sHeldRef.current = false;
+        crouchQueuedRef.current = false;
+        if (crouchingRef.current) exitCrouch();
         return;
       }
 
@@ -729,19 +737,20 @@ export const Character = ({ darkMode }) => {
           return;
         }
 
-        runningRef.current = false;
+        syncRunState();
         stopLoopIfIdle();
         return;
       }
 
       if (k === "shift") {
-        runningRef.current = false;
+        shiftHeldRef.current = false;
+        syncRunState();
+
+        if (!crouchingRef.current && !isAirOrJumping() && directionRef.current) beginMovement();
         return;
       }
 
-      if (k === "w") {
-        endJumpHold();
-      }
+      if (k === "w") endJumpHold();
     };
 
     window.addEventListener("keydown", onKeyDown);
@@ -752,31 +761,46 @@ export const Character = ({ darkMode }) => {
       window.removeEventListener("keyup", onKeyUp);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ---------------- Init + resize ---------------- */
   useEffect(() => {
+    xRef.current = 0;
     yAirRef.current = 0;
-    xRef.current = clampXToWindow(xRef.current, pose);
-    yAirRef.current = clampYAirToCeiling(yAirRef.current, pose);
-    applyTransformFromAir(xRef.current, yAirRef.current, pose);
+
+    recomputeGroundY();
+    applyTransformFromAir(xRef.current, yAirRef.current);
 
     const onResize = () => {
-      if (draggingRef.current) {
-        dragWorldRef.current.x = clampXToWindow(dragWorldRef.current.x, pose);
-        dragWorldRef.current.y = clampWorldYToCeiling(dragWorldRef.current.y, pose);
-        applyTransformFromWorld(dragWorldRef.current.x, dragWorldRef.current.y);
-      } else {
-        xRef.current = clampXToWindow(xRef.current, pose);
-        yAirRef.current = clampYAirToCeiling(yAirRef.current, pose);
-        applyTransformFromAir(xRef.current, yAirRef.current, pose);
-      }
+      if (draggingRef.current) return;
+
+      recomputeGroundY();
+
+      xRef.current = clampXToWindow(xRef.current);
+      yAirRef.current = clampYAirToCeiling(yAirRef.current);
+      applyTransformFromAir(xRef.current, yAirRef.current);
     };
 
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* ---------------- Recalc ground ONCE when mobileMode/scale changes ---------------- */
+  useEffect(() => {
+    if (draggingRef.current) return;
+
+    recomputeGroundY();
+
+    xRef.current = clampXToWindow(xRef.current);
+    yAirRef.current = clampYAirToCeiling(yAirRef.current);
+    applyTransformFromAir(xRef.current, yAirRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileMode, HUMAN_SCALE]);
+
+  /* ---------------- Re-render HumanAnimator on mode/theme changes ---------------- */
+  const animatorKey = `${mobileMode ? "m" : "d"}-${darkMode ? "dark" : "light"}-${HUMAN_SCALE}`;
 
   /* ---------------- Render ---------------- */
   return (
@@ -803,8 +827,7 @@ export const Character = ({ darkMode }) => {
         }}
         style={{
           position: "absolute",
-          left: "50%",
-          top: "50%",
+          top: 0,
           willChange: "transform",
           pointerEvents: "auto",
           touchAction: "none",
@@ -824,6 +847,7 @@ export const Character = ({ darkMode }) => {
           }}
         >
           <HumanAnimator
+            key={animatorKey}
             targetPose={pose}
             duration={duration}
             debug={false}

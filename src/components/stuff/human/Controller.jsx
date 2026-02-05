@@ -13,7 +13,7 @@ import { struggle1, struggle2 } from "./poses";
  * Controls the human to do poses
  * @returns controller object
  */
-export const Controller = () => {
+export const Controller = ({ darkMode }) => {
 
   // Initialise
   const [pose, setPose] = useState(standStraight);
@@ -118,7 +118,8 @@ export const Controller = () => {
       <HumanAnimator
         targetPose={pose}
         duration={duration}
-        debug={true}
+        debug={false}
+        darkMode={darkMode}
         humanScale={1}
       />
 

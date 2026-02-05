@@ -30,6 +30,7 @@ export const HyperlinkBullet = ({ mobileMode, darkMode, iconLight, iconDark, tit
     width: mobileMode ? "2.5rem" : "3rem",
     borderRadius: "8px",
     backgroundColor: "var(--colour-3)",
+    border: "1px solid var(--colour-4)",
   };
   const textContainer = {
     display: "flex",

@@ -81,7 +81,7 @@ export const Human = ({
   // Helper for consistent image styles including dark mode
   const imgStyle = (height) => ({
     height: height * humanScale,
-    filter: darkMode ? "brightness(80%)" : "none",
+    filter: darkMode ? "brightness(70%)" : "none",
     draggable: false,
   });
 

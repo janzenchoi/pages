@@ -64,11 +64,10 @@ export const walkStride1 = {
   hindUpperLegRotation: 30,
   hindLowerLegRotation: -87,
   hindFootRotation: 66,
-
   offsetX: 0,
   offsetY: 2,
   borderX0: -100,
-  borderX1: 80,
+  borderX1: 100,
   borderY0: -120,
   borderY1: 180,
 };
@@ -89,11 +88,10 @@ export const walkStride2 = {
   hindUpperLegRotation: 45,
   hindLowerLegRotation: -71,
   hindFootRotation: 57,
-
   offsetX: 0,
   offsetY: 2,
   borderX0: -100,
-  borderX1: 80,
+  borderX1: 100,
   borderY0: -120,
   borderY1: 180,
 };
@@ -114,11 +112,10 @@ export const walkStride3 = {
   hindUpperLegRotation: 18,
   hindLowerLegRotation: -13,
   hindFootRotation: 67,
-
   offsetX: 0,
-  offsetY: 10,
+  offsetY: 2,
   borderX0: -100,
-  borderX1: 80,
+  borderX1: 100,
   borderY0: -120,
   borderY1: 180,
 };
@@ -139,11 +136,10 @@ export const walkStride4 = {
   hindUpperLegRotation: -5,
   hindLowerLegRotation: -15,
   hindFootRotation: 74,
-
   offsetX: 0,
   offsetY: 2,
   borderX0: -100,
-  borderX1: 80,
+  borderX1: 100,
   borderY0: -120,
   borderY1: 180,
 };
@@ -164,11 +160,10 @@ export const walkStride5 = {
   hindUpperLegRotation: -31,
   hindLowerLegRotation: -13,
   hindFootRotation: 90,
-
   offsetX: 0,
-  offsetY: 5,
+  offsetY: 2,
   borderX0: -100,
-  borderX1: 80,
+  borderX1: 100,
   borderY0: -120,
   borderY1: 180,
 };
@@ -189,11 +184,10 @@ export const walkStride6 = {
   hindUpperLegRotation: -40,
   hindLowerLegRotation: -20,
   hindFootRotation: 70,
-
   offsetX: 0,
-  offsetY: 10,
+  offsetY: 2,
   borderX0: -100,
-  borderX1: 80,
+  borderX1: 100,
   borderY0: -120,
   borderY1: 180,
 };
@@ -583,7 +577,7 @@ export const struggle1 = {
   offsetX: 0,
   offsetY: 0,
   borderX0: -50,
-  borderX1: 40,
+  borderX1: 50,
   borderY0: -120,
   borderY1: 200,
 };
@@ -607,14 +601,14 @@ export const struggle2 = {
   offsetX: 0,
   offsetY: 0,
   borderX0: -50,
-  borderX1: 40,
+  borderX1: 50,
   borderY0: -120,
   borderY1: 200,
 };
 
 export const crouch = {
   humanRotation: 330,
-  headRotation: 20,
+  headRotation: 10,
   foreUpperArmRotation: 173,
   foreLowerArmRotation: 78,
   foreHandRotation: 1,
@@ -627,7 +621,7 @@ export const crouch = {
   foreFootRotation: 120,
   hindUpperLegRotation: 51,
   hindLowerLegRotation: -145,
-  hindFootRotation: 120,
+  hindFootRotation: 140,
   offsetX: 0,
   offsetY: 5,
   borderX0: -110,
@@ -638,7 +632,7 @@ export const crouch = {
 
 export const crouchWalk1 = {
   humanRotation: 330,
-  headRotation: 20,
+  headRotation: 10,
   foreUpperArmRotation: 145,
   foreLowerArmRotation: 78,
   foreHandRotation: 1,
@@ -662,7 +656,7 @@ export const crouchWalk1 = {
 
 export const crouchWalk2 = {
   humanRotation: 330,
-  headRotation: 20,
+  headRotation: 10,
   hindUpperArmRotation: 145,
   hindLowerArmRotation: 78,
   hindHandRotation: 1,
