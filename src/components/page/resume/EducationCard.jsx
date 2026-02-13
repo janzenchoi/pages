@@ -20,7 +20,7 @@ export const EducationCard = ({ mobileMode, darkMode }) => {
       title={"PhD in Mechanical Engineering"}
       subtitle={"University of New South Wales"}
       description={[
-        "Focused on applying macine learning and optimisation techniques to develop and calibrate material models for predicting the creep and tensile deformation behaviour of Alloy 617.",
+        "Focused on applying macine learning and optimisation techniques to develop and calibrate material models for predicting the creep and tensile deformation behaviour of Alloy 617",
       ]}
       iconLight={unswLight}
       iconDark={unswDark}
@@ -37,7 +37,7 @@ export const EducationCard = ({ mobileMode, darkMode }) => {
       title={"Bachelor of Mechatronic Engineering (Honours)"}
       subtitle={"University of New South Wales"}
       description={[
-        "Graduated with First Class Honours and the University Medal (92HD)."
+        "Graduated with First Class Honours and the University Medal (92HD)"
       ]}
       iconLight={unswLight}
       iconDark={unswDark}
@@ -52,7 +52,7 @@ export const EducationCard = ({ mobileMode, darkMode }) => {
       title={"Bachelor of Computer Science"}
       subtitle={"University of New South Wales"}
       description={[
-        "Graduated with Distinction (92HD)."
+        "Graduated with Distinction (92HD)"
       ]}
       iconLight={unswLight}
       iconDark={unswDark}

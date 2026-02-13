@@ -27,6 +27,7 @@ export const JanzenActivity = ({ mobileMode, darkMode, activityController }) => 
     "Press W to jump",
     "Press S to crouch",
     "Press SHIFT to sprint",
+    "Press 2 to see what happens when you reject Janzen",
     // "Press 1-9 to emote."
   ];
 
