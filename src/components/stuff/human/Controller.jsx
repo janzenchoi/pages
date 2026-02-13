@@ -8,6 +8,7 @@ import { jumpPrime, jumpFly, jumpPeak, jumpFall, jumpLand } from "./poses";
 import { standJumpPrime, standJumpFly, standJumpLand, walkJumpFly } from "./poses";
 import { crouch, crouchWalk1, crouchWalk2 } from "./poses";
 import { struggle1, struggle2 } from "./poses";
+import { emoteCry1, emoteCry2, emoteCry3 } from "./poses";
 
 /**
  * Controls the human to do poses
@@ -105,6 +106,16 @@ export const Controller = ({ darkMode }) => {
     // }
   };
 
+  // Cry animation
+  const animateEmote = async (count=1) => {
+    await animate(emoteCry1, 500);
+    await animate(emoteCry2, 500);
+    for (let i = 0; i < count; i++) {
+      await animate(emoteCry3, 300);
+      await animate(emoteCry2, 300);
+    }
+  };
+
   return (
     <Draggable>
     <div
@@ -118,7 +129,7 @@ export const Controller = ({ darkMode }) => {
       <HumanAnimator
         targetPose={pose}
         duration={duration}
-        debug={false}
+        debug={true}
         darkMode={darkMode}
         humanScale={1}
       />
@@ -133,6 +144,7 @@ export const Controller = ({ darkMode }) => {
         <button onClick={() => animateStandJump(1)}>S.Jump</button>
         <button onClick={() => animateStruggle(5)}>Struggle</button>
         <button onClick={() => animateCrouch(5)}>Crouch</button>
+        <button onClick={() => animateEmote(3)}>Emote</button>
       </div>
     </div>
     </Draggable>

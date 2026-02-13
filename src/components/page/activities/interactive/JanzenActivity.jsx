@@ -1,6 +1,6 @@
-import { ActivityCard } from "../../content/ActivityCard";
-import lightImage from "../../../assets/stuff/janzen_light_icon.png";
-import darkImage from "../../../assets/stuff/janzen_dark_icon.png";
+import { ActivityBullet } from "../../../content/ActivityBullet";
+import lightImage from "../../../../assets/stuff/janzen_light_icon.png";
+import darkImage from "../../../../assets/stuff/janzen_dark_icon.png";
 
 /**
  * Janzen activity card
@@ -13,16 +13,16 @@ export const JanzenActivity = ({ mobileMode, darkMode, activityController }) => 
   
   // Constants
   const title = "Tiny Janzen";
-  const subtitle = "Get experience controlling Janzen before you hire him.";
+  const subtitle = "Experience controlling Janzen before you hire him.";
   const mobileDescription = [
-    "Hold and release to forcibly relocate",
+    "Hold and release Janzen to forcibly relocate him",
     "Move joystick left / right to walk left / right",
     "Move joystick upward to jump",
     "Move joystick downward to crouch",
     "Move joystick outside the dashed ring to sprint",
   ];
   const desktopDescription = [
-    "Drag and release to forcibly relocate",
+    "Drag and release Janzen to forcibly relocate him",
     "Press A / D to walk left / right",
     "Press W to jump",
     "Press S to crouch",
@@ -32,7 +32,7 @@ export const JanzenActivity = ({ mobileMode, darkMode, activityController }) => 
 
   // Render
   return (
-    <ActivityCard
+    <ActivityBullet
       mobileMode={mobileMode}
       darkMode={darkMode}
       status={activityController.status}

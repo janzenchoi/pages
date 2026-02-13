@@ -1,6 +1,6 @@
-import { ActivityCard } from "../../content/ActivityCard";
-import ballLight from "../../../assets/stuff/ball_light_icon.png";
-import ballDark from "../../../assets/stuff/ball_dark_icon.png";
+import { ActivityBullet } from "../../../content/ActivityBullet";
+import ballLight from "../../../../assets/stuff/ball_light_icon.png";
+import ballDark from "../../../../assets/stuff/ball_dark_icon.png";
 
 /**
  * Soccer activity card
@@ -13,7 +13,7 @@ export const SoccerActivity = ({ mobileMode, darkMode, activityController }) => 
   
   // Constants
   const title = "Soccer Ball";
-  const subtitle = "Throw a soccer ball around while looking at Janzen's qualifications.";
+  const subtitle = "Throw a ball around while browsing Janzen's qualifications.";
   const mobileDescription = [
     "Swipe and release the soccer ball to throw it"
   ];
@@ -23,7 +23,7 @@ export const SoccerActivity = ({ mobileMode, darkMode, activityController }) => 
 
   // Render
   return (
-    <ActivityCard
+    <ActivityBullet
       mobileMode={mobileMode}
       darkMode={darkMode}
       status={activityController.status}

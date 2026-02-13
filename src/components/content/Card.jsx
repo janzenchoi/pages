@@ -9,7 +9,7 @@ export const Card = ({ mobileMode, title, children }) => {
 
   // Container style for the card
   const containerStyle = {
-    padding: "0.6rem 1rem 1rem 1rem",
+    padding: "0.6rem 1rem 0.6rem 1rem",
     backgroundColor: "var(--colour-0)",
     transition: "background-color 0.3s ease",
     marginTop: "0.4rem",

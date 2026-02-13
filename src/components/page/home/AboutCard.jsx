@@ -12,7 +12,7 @@ export const AboutCard = ({ mobileMode, darkMode }) => {
   // Text
   const text1 = "Hello, I'm Janzen.";
   const text2 = "I am a PhD-trained engineer and programmer with experience in research, software development, and engineering analysis.";
-  const text3 = "";
+  const text3 = "Contact me to learn more.";
 
   // Returns the desktop version
   const DesktopObject = () => {

@@ -40,7 +40,12 @@ import {
   // crouch poses
   crouch,
   crouchWalk1,
-  crouchWalk2
+  crouchWalk2,
+
+  // emotes
+  emoteCry1,
+  emoteCry2,
+  emoteCry3
 } from "./poses";
 
 /**
@@ -50,9 +55,11 @@ import {
  * - Joystick is mounted inside Character (Scene unchanged)
  * - Safe to toggle janzenExists on/off/on (hard reset + hard cleanup)
  * - Auto-jump-repeat: hold W or hold joystick up -> continuous jumping (bunnyhop)
+ * - NEW: Ground-only Emote (press "2") loops until any new input interrupts
  *
  * Keyboard:
  * - A/D = move, Shift = sprint, W = jump (hold), S = crouch (queues in air)
+ * - 2   = cry emote (ground only, loops until interrupted)
  *
  * Joystick mapping (8-dir):
  * - Left/Right            => walk
@@ -122,14 +129,20 @@ export const Character = ({ mobileMode, darkMode }) => {
   const JOY_ACTIVE_MAG = 0.18; // below => ignore joystick
   const JOY_SPRINT_MAG = 0.86; // "very" threshold
 
-  /* ---------------- Minimal React state ---------------- */
+  /* =========================================================================
+     MINIMAL REACT STATE
+  ========================================================================= */
   const [pose, setPose] = useState(standCasual);
   const [duration, setDuration] = useState(140);
   const [facing, setFacing] = useState("left");
   const [isDraggingUi, setIsDraggingUi] = useState(false);
 
   /* ---------------- Joystick position state ---------------- */
-  const [joyPos, setJoyPos] = useState({ x: 24, y: 24 });
+  const [joyPos, setJoyPos] = useState(() => {
+    if (!mobileMode) return { x: 24, y: 24 };
+    const y = Math.max(24, window.innerHeight - 200);
+    return { x: 24, y };
+  });
 
   /* ---------------- DOM refs ---------------- */
   const wrapperRef = useRef(null);
@@ -195,10 +208,17 @@ export const Character = ({ mobileMode, darkMode }) => {
   const jumpHoldStartRef = useRef(0);
   const jumpModeRef = useRef("stand"); // "stand" | "walk" | "run"
 
-  // NEW: desired jump-hold intent (keyboard W held OR joystick held up)
+  // desired jump-hold intent (keyboard W held OR joystick held up)
   const wantJumpHoldRef = useRef(false);
 
-  /* ---------------- Strides ---------------- */
+  /* ---------------- Emote state ---------------- */
+  const emoteActiveRef = useRef(false);
+  const emoteAbortRef = useRef({ aborted: false });
+  const emoteRafRef = useRef(null);
+
+  /* =========================================================================
+     STRIDES
+  ========================================================================= */
   const walkStrides = useMemo(
     () => [walkStride1, walkStride2, walkStride3, walkStride4, walkStride5, walkStride6],
     []
@@ -266,6 +286,8 @@ export const Character = ({ mobileMode, darkMode }) => {
   };
 
   const isAirOrJumping = () => jumpStateRef.current !== "none" || yAirRef.current < 0;
+  const isOnGround = () =>
+    !isAirOrJumping() && !crouchingRef.current && !draggingRef.current;
 
   /* =========================================================================
      HARD RESET / CLEANUP (fixes janzenExists toggle glitch)
@@ -311,6 +333,12 @@ export const Character = ({ mobileMode, darkMode }) => {
     jumpHoldStartRef.current = 0;
     jumpModeRef.current = "stand";
 
+    // emote
+    emoteActiveRef.current = false;
+    emoteAbortRef.current = { aborted: true };
+    if (emoteRafRef.current) cancelAnimationFrame(emoteRafRef.current);
+    emoteRafRef.current = null;
+
     // drag
     draggingRef.current = false;
     dragPtrIdRef.current = null;
@@ -350,8 +378,9 @@ export const Character = ({ mobileMode, darkMode }) => {
     const jumping = jumpStateRef.current !== "none" || yAirRef.current < 0;
     const dragging = draggingRef.current;
     const crouching = crouchingRef.current;
+    const emoting = emoteActiveRef.current;
 
-    if (!hasDir && !jumping && !dragging && !crouching) {
+    if (!hasDir && !jumping && !dragging && !crouching && !emoting) {
       animatingRef.current = false;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -367,6 +396,7 @@ export const Character = ({ mobileMode, darkMode }) => {
   const beginMovementPose = () => {
     if (!directionRef.current) return;
     if (crouchingRef.current || draggingRef.current) return;
+    if (emoteActiveRef.current) return;
 
     syncRunState();
 
@@ -416,6 +446,7 @@ export const Character = ({ mobileMode, darkMode }) => {
 
   const enterCrouch = () => {
     if (draggingRef.current) return;
+    if (emoteActiveRef.current) return;
     if (isAirOrJumping()) return;
 
     sHeldRef.current = true;
@@ -455,6 +486,7 @@ export const Character = ({ mobileMode, darkMode }) => {
   const startJump = () => {
     if (crouchingRef.current) return;
     if (draggingRef.current) return;
+    if (emoteActiveRef.current) return;
     if (jumpStateRef.current !== "none") return;
 
     const dirAtStart = directionRef.current;
@@ -485,6 +517,69 @@ export const Character = ({ mobileMode, darkMode }) => {
         const isRunning = jumpModeRef.current === "run";
         vyRef.current = JUMP_VY_TAP * (isRunning ? RUN_JUMP_VY_MULT : 1);
       }
+    }
+  };
+
+  /* =========================================================================
+     EMOTE (ground-only; start with 1->2 once, then loop 3<->2)
+  ========================================================================= */
+  const stopEmote = () => {
+    emoteActiveRef.current = false;
+    if (emoteAbortRef.current) emoteAbortRef.current.aborted = true;
+    if (emoteRafRef.current) cancelAnimationFrame(emoteRafRef.current);
+    emoteRafRef.current = null;
+  };
+
+  const animatePoseMs = (nextPose, ms, abortObj) => {
+    return new Promise((resolve) => {
+      if (abortObj.aborted) return resolve(false);
+
+      setPoseNow(nextPose, ms);
+
+      const start = performance.now();
+      const tick = () => {
+        if (abortObj.aborted) return resolve(false);
+        if (performance.now() - start >= ms) return resolve(true);
+        emoteRafRef.current = requestAnimationFrame(tick);
+      };
+
+      emoteRafRef.current = requestAnimationFrame(tick);
+    });
+  };
+
+  const startCryEmote = async () => {
+    if (!isOnGround()) return;
+    if (emoteActiveRef.current) return;
+
+    stopEmote();
+
+    emoteActiveRef.current = true;
+    emoteAbortRef.current = { aborted: false };
+    const abortObj = emoteAbortRef.current;
+
+    // freeze locomotion state
+    directionRef.current = null;
+    shiftHeldRef.current = false;
+    runningRef.current = false;
+
+    ensureLoop();
+
+    // start sequence ONCE: 1 -> 2
+    if (!(await animatePoseMs(emoteCry1, 500, abortObj))) return;
+    if (!(await animatePoseMs(emoteCry2, 500, abortObj))) return;
+
+    // then loop forever: 3 -> 2
+    while (!abortObj.aborted) {
+      if (!(await animatePoseMs(emoteCry3, 300, abortObj))) break;
+      if (!(await animatePoseMs(emoteCry2, 300, abortObj))) break;
+    }
+
+    if (emoteAbortRef.current === abortObj) {
+      emoteActiveRef.current = false;
+      emoteRafRef.current = null;
+
+      if (isOnGround() && !directionRef.current) setPoseNow(standCasual, 120);
+      stopLoopIfIdle();
     }
   };
 
@@ -521,12 +616,30 @@ export const Character = ({ mobileMode, darkMode }) => {
   const applyMergedInputs = () => {
     const joy = computeJoystickIntent();
 
+    // interrupt emote on ANY input intent
+    const anyKbIntent =
+      kbDirRef.current != null || kbShiftRef.current || kbCrouchRef.current || kbJumpRef.current;
+
+    const anyJoyIntent = joy.dir != null || joy.shift || joy.crouch || joy.jump;
+
+    if (emoteActiveRef.current && (anyKbIntent || anyJoyIntent)) {
+      stopEmote();
+    }
+
+    // if still emoting, ignore inputs until interrupted
+    if (emoteActiveRef.current) {
+      directionRef.current = null;
+      shiftHeldRef.current = false;
+      runningRef.current = false;
+      return;
+    }
+
     const dir = kbDirRef.current != null ? kbDirRef.current : joy.dir;
     const shift = kbShiftRef.current || joy.shift;
     const wantCrouch = kbCrouchRef.current || joy.crouch;
     const wantJump = kbJumpRef.current || joy.jump;
 
-    // NEW: record "jump is being held" intent, used for auto-repeat on landing
+    // record "jump is being held" intent, used for auto-repeat on landing
     wantJumpHoldRef.current = wantJump;
 
     const prevDir = directionRef.current;
@@ -570,6 +683,7 @@ export const Character = ({ mobileMode, darkMode }) => {
   ========================================================================= */
   const beginDrag = (e) => {
     if (!wrapperRef.current) return;
+    if (emoteActiveRef.current) stopEmote();
 
     draggingRef.current = true;
     setIsDraggingUi(true);
@@ -664,6 +778,22 @@ export const Character = ({ mobileMode, darkMode }) => {
         setPoseNow(strugglePhaseRef.current === 0 ? struggle1 : struggle2, STRUGGLE_FRAME_MS);
       }
       applyTransformFromAbs(dragAbsRef.current.x, dragAbsRef.current.y);
+      rafRef.current = requestAnimationFrame(loop);
+      return;
+    }
+
+    // emote mode: keep transform stable, keep loop alive, but do not simulate locomotion
+    if (emoteActiveRef.current) {
+      // still allow merge to detect interrupt and stopEmote()
+      applyMergedInputs();
+
+      // lock to ground
+      yAirRef.current = 0;
+      vyRef.current = 0;
+
+      xRef.current = clampXToWindow(xRef.current);
+      applyTransformFromAir(xRef.current, yAirRef.current);
+
       rafRef.current = requestAnimationFrame(loop);
       return;
     }
@@ -784,7 +914,7 @@ export const Character = ({ mobileMode, darkMode }) => {
           return;
         }
 
-        // NEW: auto-repeat jump while jump is held
+        // auto-repeat jump while jump is held
         if (wantJumpHoldRef.current && !draggingRef.current && !crouchingRef.current) {
           startJump();
           rafRef.current = requestAnimationFrame(loop);
@@ -838,15 +968,27 @@ export const Character = ({ mobileMode, darkMode }) => {
   const onJoystickChange = ({ magnitude, dir }) => {
     joyMagRef.current = magnitude;
     joyDir8Ref.current = dir || "center";
+
+    // immediate interrupt if joystick becomes active
+    if (emoteActiveRef.current && magnitude >= JOY_ACTIVE_MAG) stopEmote();
+
     ensureLoop();
   };
 
-  /* ---------------- Keyboard input ---------------- */
+  /* =========================================================================
+     KEYBOARD INPUT
+  ========================================================================= */
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.repeat) return;
 
       const k = e.key.toLowerCase();
+
+      if (k === "2") {
+        startCryEmote();
+        ensureLoop();
+        return;
+      }
 
       if (k === "a") kbDirRef.current = "left";
       if (k === "d") kbDirRef.current = "right";
@@ -878,9 +1020,10 @@ export const Character = ({ mobileMode, darkMode }) => {
     };
   }, []);
 
-  /* ---------------- Init + resize + MOUNT/UNMOUNT SAFETY ---------------- */
+  /* =========================================================================
+     INIT + RESIZE + MOUNT/UNMOUNT SAFETY
+  ========================================================================= */
   useEffect(() => {
-    // mount reset
     hardReset();
     recomputeGroundY();
     applyTransformFromAir(xRef.current, yAirRef.current);
@@ -898,16 +1041,12 @@ export const Character = ({ mobileMode, darkMode }) => {
     return () => {
       window.removeEventListener("resize", onResize);
 
-      // release pointer capture if needed
       try {
         if (wrapperRef.current && dragPtrIdRef.current != null) {
           wrapperRef.current.releasePointerCapture(dragPtrIdRef.current);
         }
-      } catch (_) {
-        // ignore
-      }
+      } catch (_) {}
 
-      // unmount cleanup
       hardReset();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -939,11 +1078,11 @@ export const Character = ({ mobileMode, darkMode }) => {
   /* ---------------- Re-render HumanAnimator on mode/theme changes ---------------- */
   const animatorKey = `${mobileMode ? "m" : "d"}-${darkMode ? "dark" : "light"}-${HUMAN_SCALE}`;
 
-  /* ---------------- Render ---------------- */
+  /* =========================================================================
+     RENDER
+  ========================================================================= */
   return (
-    // IMPORTANT: this overlay must NOT block the rest of the site
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 10000 }}>
-      {/* Character (interactive) */}
       <div
         ref={wrapperRef}
         onPointerDown={(e) => {
@@ -996,7 +1135,6 @@ export const Character = ({ mobileMode, darkMode }) => {
         </div>
       </div>
 
-      {/* Joystick (interactive within itself; stops propagation internally) */}
       {mobileMode && (
         <Joystick
           size={140}

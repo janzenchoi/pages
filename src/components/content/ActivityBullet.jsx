@@ -1,35 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { titleStyle, subtitleStyle, textStyle, verticalDividerStyle } from "./Card";
 
 /**
- * Icon bullet point
+ * Activity bullet for the body
  * @param {boolean} mobileMode whether to use mobile or desktop view
  * @param {boolean} darkMode whether to use dark or light mode
+ * @param {boolean} status defines the status of the activity
+ * @param {function} setStatus sets the activity status
+ * @param {function} setActivity function to start/stop the activity
  * @param {string} iconLight bullet icon in light mode
  * @param {string} iconDark bullet icon in dark mode
- * @param {string} title bullet title
+ * @param {string} title bullet title (must be unique)
  * @param {string} subtitle bullet subtitle
  * @param {string[]} description bullet subtext
- * @param {string[]} downloadable downloadable file
- * @param {string[]} downloadableName downloadable file name
- * @param {string} dateStart starting date
- * @param {string} dateEnd ending date
- * @returns icon bullet object
+ * @returns activity bullet object
  */
-export const IconBullet = ({
-  mobileMode, darkMode, iconLight, iconDark, title, subtitle,
-  description=[], downloadable=null, downloadableName="file", dateStart="", dateEnd=""
+export const ActivityBullet = ({
+  mobileMode, darkMode, status, setStatus, setActivity,
+  title, subtitle, description=[], iconLight, iconDark
 }) => {
-  const [open, setOpen] = useState(false);
+
+  // Play status
   const [hover, setHover] = useState(false);
 
+  // Monitor activity status
+  const isActive = status === title;
+  useEffect(() => {if (!isActive) setActivity(false)}, [isActive, setActivity]);
+
   // Auxiliary
-  const dateText = Boolean(dateStart) || Boolean(dateEnd)
-  ? mobileMode
-    ? `(${[dateStart, dateEnd].filter(Boolean).join(" - ")})`
-    : `${[dateStart, dateEnd].filter(Boolean).join(" - ")}`
-  : "";
   const icon = darkMode ? iconDark : iconLight;
+  const statusText = mobileMode
+  ? (isActive ? "(click to deactivate)" : "(click to activate)")
+  : (isActive
+      ? (hover ? "Deactivate" : "Active")
+      : (hover ? "Activate" : "Inactive")
+    );
+
+  // Starts and stops the activity
+  const handleActivity = () => {
+    if (isActive) {
+      setActivity(false);
+      setStatus("none");
+    } else {
+      setActivity(true);
+      setStatus(title);
+    };
+  };
 
   // Container styles
   const outerContainer = {
@@ -56,27 +72,11 @@ export const IconBullet = ({
     minWidth: 0,
     flex: 1,
   };
-  const dateContainer = {
+  const statusContainer = {
     ...textStyle,
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
-  };
-  const arrowStyle = {
-    marginRight: "0.4rem",
-    marginBottom: "0.4rem",
-    width: "5px",
-    height: "5px",
-    display: "inline-block",
-    borderLeft: "2px solid currentColor",
-    borderBottom: "2px solid currentColor",
-    transformOrigin: "50% 70%",
-    transition: "transform 0.3s ease",
-    transform: open ? "scaleX(-1) rotate(135deg)" : "rotate(-45deg)",
-    position: "absolute",
-    color: "var(--colour-6)",
-    bottom: 0,
-    right: 0
   };
 
   // For additional description
@@ -87,25 +87,12 @@ export const IconBullet = ({
       textAlign: mobileMode ? "start" : "justify",
       display: "block"
     };
-    const downloadStyle = {
-      fontWeight: 400,
-      fontSize: "1rem",
-      color: "var(--colour-5)",
-      textDecoration: "underline",
-      whiteSpace: "nowrap"
-    };
     return (
       <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}>
         <div style={verticalDividerStyle} />
         <div>{description.map((text, idx) => {
           return (
-            <div key={idx}>
-              <div style={descriptionStyle}>{text}
-                {idx === description.length - 1 && downloadable !== null && (<>{" "}
-                  <a href={downloadable} download={downloadableName}>
-                    <span style={downloadStyle}>({downloadableName})</span>
-                  </a></>)}
-              </div>
+            <div key={idx} style={descriptionStyle}>{text}
             </div>
           );
         })}</div>
@@ -113,45 +100,41 @@ export const IconBullet = ({
     );
   };
 
-  // Mobile bullet object
+  // Mobile bullet
   const MobileBullet = () => {
     return (
       <div
         style={outerContainer}
-        onClick={() => setOpen(!open)}
+        onClick={() => handleActivity()}
       >
         <img style={imageContainer} src={icon} alt="Icon for mobile mode"/>
         <div style={textContainer}>
           <div style={{ ...titleStyle, textAlign: "start" }}>{title}</div>
           <div style={{ ...subtitleStyle, textAlign: "start" }}>{subtitle}</div>
-          <div style={dateContainer}>{dateText}</div>
-          {open && <AdditionalDescription/>}
-        </div>
-        <div style={{ position: "relative", width: "0.8rem" }}>
-          <div style={arrowStyle}/>
+          <div style={statusContainer}>{statusText}</div>
+          {isActive && <AdditionalDescription/>}
         </div>
       </div>
     );
   };
 
-  // Desktop bullet object
+  // Desktop bullet
   const DesktopBullet = () => {
     return (
       <div
         style={outerContainer}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        onClick={() => setOpen(!open)}
+        onClick={() => handleActivity()}
       >
-        <img style={imageContainer} src={icon} alt="Icon for desktop mode"/>
+        <img style={imageContainer} src={icon} alt="Icon for mobile mode"/>
         <div style={textContainer}>
           <div style={{ ...titleStyle, textAlign: "start" }}>{title}</div>
           <div style={{ ...subtitleStyle, textAlign: "start" }}>{subtitle}</div>
-          {open && <AdditionalDescription/>}
+          {isActive && <AdditionalDescription/>}
         </div>
         <div style={{ position: "relative" }}>
-          <div style={dateContainer}>{dateText}</div>
-          <div style={arrowStyle}/>
+          <div style={statusContainer}>{statusText}</div>
         </div>
       </div>
     );

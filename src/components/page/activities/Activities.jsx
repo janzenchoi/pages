@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { SoccerActivity } from "./SoccerActivity";
-import { JanzenActivity } from "./JanzenActivity";
+import { InteractiveCard } from "./InteractiveCard";
+import { ImmersiveCard } from "./ImmersiveCard";
 import { Puppet } from "../../stuff/human/Puppet";
 import { Controller } from "../../stuff/human/Controller";
 import { Joystick } from "../../stuff/human/Joystick";
@@ -20,22 +20,13 @@ export const Activities = ({ mobileMode, colourTheme, activityController }) => {
     setDarkMode(colourTheme === "dark");
   }, [colourTheme]);
 
-  // Define cards
-  const sharedProps = {
-    mobileMode,
-    darkMode,
-    activityController,
-  };
-  const Card1 = () => <JanzenActivity {...sharedProps}/>;
-  const Card2 = () => <SoccerActivity {...sharedProps}/>;
-
   // Render
   return (
     <div>
-      <Card1/>
-      <Card2/>
-      {/* <Puppet darkMode={colourTheme === "dark"}/> */}
-      {/* <Puppet darkMode={colourTheme === "dark"}/> */}
+      <InteractiveCard mobileMode={mobileMode} darkMode={darkMode} activityController={activityController}/>
+      <ImmersiveCard mobileMode={mobileMode} darkMode={darkMode} activityController={activityController}/>
+      {/* <Puppet darkMode={colourTheme === "dark"}/>
+      <Controller darkMode={colourTheme === "dark"}/> */}
       {/* <Joystick/> */}
     </div>
   );
